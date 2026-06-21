@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, CheckCircle2, Sparkles } from "lucide-react";
 import AnimatedShaderBackground from "@/components/ui/animated-shader-background";
-
-const bootSteps = ["GPU shader pass", "Match engine", "Trust layer"];
 
 export default function ShaderBootScreen() {
   const startedAt = useRef<number>(Date.now());
@@ -42,50 +39,30 @@ export default function ShaderBootScreen() {
       aria-label="Loading BorrowBoard"
     >
       <AnimatedShaderBackground className="absolute inset-0 opacity-80" onReady={() => setShaderReady(true)} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(251,191,36,0.22),transparent_34%),linear-gradient(180deg,rgba(18,15,11,0.22),rgba(18,15,11,0.90)_72%,#120f0b)]" />
-      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-amber-200/40 to-transparent boot-scan-line" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(251,191,36,0.24),transparent_30%),radial-gradient(circle_at_52%_55%,rgba(99,102,241,0.16),transparent_28%),linear-gradient(180deg,rgba(18,15,11,0.18),rgba(18,15,11,0.92)_76%,#120f0b)]" />
+      <div className="absolute inset-x-[18%] top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-amber-200/50 to-transparent boot-scan-line" />
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-sm rounded-2xl border border-white/12 bg-white/[0.07] p-7 text-center shadow-2xl shadow-black/40 backdrop-blur-2xl">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-amber-300 via-orange-400 to-indigo-500 shadow-2xl shadow-amber-500/20">
-            <BookOpen className="h-7 w-7 text-white" />
-          </div>
+        <div className="relative flex w-full max-w-xs flex-col items-center rounded-3xl border border-white/12 bg-white/[0.055] px-8 py-10 shadow-2xl shadow-black/45 backdrop-blur-2xl">
+          <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[linear-gradient(135deg,rgba(255,255,255,0.14),transparent_42%),radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.18),transparent_42%)]" />
+          <div className="pointer-events-none absolute -inset-px rounded-3xl border border-amber-100/10" />
 
-          <div className="mb-5 flex items-center justify-center gap-3">
-            <div className="spinner" aria-hidden="true">
+          <div className="relative mb-10 flex h-24 w-24 items-center justify-center rounded-full border border-amber-100/15 bg-stone-950/45 shadow-[0_0_55px_rgba(245,158,11,0.22)]">
+            <div className="absolute inset-3 rounded-full border border-white/10" />
+            <div className="spinner scale-[3.2]" aria-hidden="true">
               {Array.from({ length: 10 }).map((_, index) => (
                 <div key={index} />
               ))}
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/20 bg-amber-200/10 px-3 py-1 text-xs font-bold text-amber-100">
-            <Sparkles className="h-3.5 w-3.5" />
-            Compiling visual system
-          </div>
-          <h1 className="mt-4 text-2xl font-extrabold tracking-normal text-white">BorrowBoard is warming up</h1>
-          <p className="mt-3 text-sm leading-6 text-stone-300">
-            Preparing shaders, glass layers, and live match surfaces before the app opens.
-          </p>
-
-          <div className="mt-6 space-y-2 text-left">
-            {bootSteps.map((step, index) => (
-              <div key={step} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2">
-                <CheckCircle2 className={`h-4 w-4 ${shaderReady || index === 0 ? "text-emerald-300" : "text-stone-500"}`} />
-                <span className="text-xs font-semibold text-stone-200">{step}</span>
-                <span className="ml-auto text-[10px] font-bold uppercase text-amber-100/50">
-                  {shaderReady || index === 0 ? "ready" : "sync"}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-white/10">
+          <div className="relative h-2 w-full overflow-hidden rounded-full border border-white/10 bg-black/30 shadow-inner shadow-black/30">
             <div
-              className={`h-full rounded-full bg-gradient-to-r from-amber-300 via-orange-400 to-indigo-400 transition-all duration-700 boot-progress ${
+              className={`h-full rounded-full bg-gradient-to-r from-amber-200 via-orange-400 to-indigo-400 shadow-[0_0_22px_rgba(251,191,36,0.75)] transition-all duration-700 boot-progress ${
                 shaderReady ? "w-full" : "w-2/3"
               }`}
             />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)] opacity-40" />
           </div>
         </div>
       </div>

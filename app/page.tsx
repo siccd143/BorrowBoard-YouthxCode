@@ -24,6 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import GradientBackground from "@/components/ui/gradient-backgrounds";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const stats = [
   { value: "412", label: "shared items" },
@@ -249,15 +250,15 @@ export default function LandingPage() {
       </section>
 
       <section className="bg-[#fffaf3] px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl scroll-reveal">
-          <div className="mb-12 flex flex-col items-center gap-4 text-center">
+        <div className="mx-auto max-w-7xl">
+          <ScrollReveal className="mb-12 flex flex-col items-center gap-4 text-center">
             <div className="rounded-full border border-stone-950/10 bg-white px-4 py-2 text-xs font-bold text-stone-500">Live campus feed</div>
             <h2 className="max-w-3xl text-5xl font-semibold leading-[1.05] text-stone-950">The app should feel alive before anyone clicks.</h2>
             <p className="max-w-xl text-sm leading-7 text-stone-600">Real-time activity makes BorrowBoard feel like the school is already using it.</p>
-          </div>
+          </ScrollReveal>
 
           <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.85fr)_minmax(0,1.45fr)]">
-            <div className="flex min-h-[560px] min-w-0 flex-col justify-between rounded-2xl border border-stone-950/10 bg-white p-8 shadow-sm">
+            <ScrollReveal delay={80} className="flex min-h-[560px] min-w-0 flex-col justify-between rounded-2xl border border-stone-950/10 bg-white p-8 shadow-sm">
               <div>
                 <div className="mb-8 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -279,7 +280,7 @@ export default function LandingPage() {
                   <Star key={index} className="h-5 w-5 fill-current" />
                 ))}
               </div>
-            </div>
+            </ScrollReveal>
 
             <div className="flex min-h-[560px] min-w-0 flex-col gap-5">
               <div className="relative h-[300px] overflow-hidden rounded-2xl">
@@ -290,28 +291,28 @@ export default function LandingPage() {
                   <p className="text-xs text-white/70">Shared during real class windows</p>
                 </div>
               </div>
-              <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-stone-950/10 bg-white p-7 text-center shadow-sm">
+              <ScrollReveal delay={180} className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-stone-950/10 bg-white p-7 text-center shadow-sm">
                 <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 text-amber-200 transition-transform hover:scale-110">
                   <TrendingUp className="h-6 w-6" />
                 </div>
                 <p className="text-5xl font-semibold tracking-normal text-stone-950">4.8m</p>
                 <p className="mt-2 text-sm font-medium text-stone-500">average match time</p>
-              </div>
+              </ScrollReveal>
             </div>
 
             <div className="flex min-h-[560px] min-w-0 flex-col gap-5">
               <div className="grid min-w-0 gap-5 sm:grid-cols-2">
-                {campusFeed.slice(0, 2).map(({ actor, action, detail, time, icon: Icon }) => (
-                  <div key={action} className="rounded-2xl border border-stone-950/10 bg-white p-6 shadow-sm">
+                {campusFeed.slice(0, 2).map(({ actor, action, detail, time, icon: Icon }, index) => (
+                  <ScrollReveal key={action} delay={220 + index * 90} className="rounded-2xl border border-stone-950/10 bg-white p-6 shadow-sm">
                     <Icon className="mb-8 h-8 w-8 text-stone-950" />
                     <p className="text-4xl font-semibold tracking-normal text-stone-950">{time}</p>
                     <p className="mt-2 text-sm text-stone-500">{actor} {action}</p>
                     <p className="mt-1 text-xs font-bold uppercase text-amber-700">{detail}</p>
-                  </div>
+                  </ScrollReveal>
                 ))}
               </div>
 
-              <div className="flex flex-1 flex-col justify-center gap-8 overflow-hidden rounded-2xl bg-black p-8 text-white shadow-inner-soft">
+              <ScrollReveal delay={340} className="flex flex-1 flex-col justify-center gap-8 overflow-hidden rounded-2xl bg-black p-8 text-white shadow-inner-soft">
                 <p className="text-2xl font-medium leading-[1.4] tracking-normal">"I returned the ruler two minutes early and the app immediately updated my trust score."</p>
                 <div className="space-y-3">
                   {campusFeed.slice(2).map(({ actor, action, detail, time, icon: Icon }) => (
@@ -327,15 +328,15 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </ScrollReveal>
             </div>
           </div>
         </div>
       </section>
 
       <section className="bg-[#f3eadf] px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl scroll-reveal">
-          <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+        <div className="mx-auto max-w-7xl">
+          <ScrollReveal className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
             <div>
               <p className="text-xs font-extrabold uppercase text-amber-800">Marketplace preview</p>
               <h2 className="mt-3 max-w-2xl text-4xl font-extrabold text-stone-950">Make the inventory visible, not abstract.</h2>
@@ -343,11 +344,11 @@ export default function LandingPage() {
             <Link href="/borrow" className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5">
               Browse all items <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {marketplaceItems.map((item) => (
-              <div key={item.name} className="group overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-stone-900/10">
+            {marketplaceItems.map((item, index) => (
+              <ScrollReveal key={item.name} delay={index * 90} className="group overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-stone-900/10">
                 <div className="relative h-52 overflow-hidden">
                   <img src={item.image} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                   <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-stone-800 backdrop-blur">{item.tag}</div>
@@ -364,22 +365,22 @@ export default function LandingPage() {
                     Request <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       <section className="bg-[#fffaf3] px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl scroll-reveal">
-          <div className="mb-12 text-center">
+        <div className="mx-auto max-w-7xl">
+          <ScrollReveal className="mb-12 text-center">
             <p className="text-xs font-extrabold uppercase text-amber-800">Trust layer</p>
             <h2 className="mx-auto mt-3 max-w-3xl text-4xl font-extrabold text-stone-950">Trust is a workflow, not a vague score.</h2>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-4 lg:grid-cols-4">
             {trustTimeline.map(({ title, body, icon: Icon }, index) => (
-              <div key={title} className="relative rounded-2xl border border-stone-950/10 bg-white p-6 shadow-sm">
+              <ScrollReveal key={title} delay={index * 100} className="relative rounded-2xl border border-stone-950/10 bg-white p-6 shadow-sm">
                 <div className="mb-8 flex items-center justify-between">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-950 text-amber-200">
                     <Icon className="h-5 w-5" />
@@ -388,14 +389,14 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-lg font-extrabold text-stone-950">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-stone-600">{body}</p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       <section className="bg-[#14110e] px-5 py-20 text-white sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-7xl rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8 lg:p-10">
+        <ScrollReveal className="mx-auto max-w-7xl rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8 lg:p-10">
           <div className="grid gap-8 lg:grid-cols-[1fr_0.95fr] lg:items-center">
             <div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200/20 bg-amber-200/10 px-3 py-1 text-xs font-bold text-amber-100">
@@ -408,16 +409,18 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="grid gap-3">
-              {workflowActions.map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] p-4 text-sm font-bold text-stone-100 transition hover:-translate-y-0.5 hover:bg-white/[0.10]">
+              {workflowActions.map(({ href, label, icon: Icon }, index) => (
+                <ScrollReveal key={href} delay={120 + index * 90}>
+                  <Link href={href} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] p-4 text-sm font-bold text-stone-100 transition hover:-translate-y-0.5 hover:bg-white/[0.10]">
                   <Icon className="h-5 w-5 text-amber-200" />
                   {label}
                   <ArrowRight className="ml-auto h-4 w-4" />
-                </Link>
+                  </Link>
+                </ScrollReveal>
               ))}
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <footer className="border-t border-stone-950/10 bg-[#fffaf3] px-5 py-8 sm:px-8 lg:px-10">

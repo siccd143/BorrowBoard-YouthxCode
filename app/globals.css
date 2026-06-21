@@ -34,6 +34,12 @@ h1, h2, h3, h4, h5, h6 {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+
+  .motion-reveal {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -177,6 +183,23 @@ h1, h2, h3, h4, h5, h6 {
   animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-timeline: view();
   animation-range: entry 8% cover 28%;
+}
+
+.motion-reveal {
+  opacity: 0;
+  filter: blur(10px);
+  transform: translate3d(0, 28px, 0) scale(0.985);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, filter, transform;
+}
+
+.motion-reveal-visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 .animate-match-scan {
