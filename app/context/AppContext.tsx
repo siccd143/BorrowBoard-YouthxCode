@@ -41,6 +41,7 @@ interface AppContextType {
   addCredits: (amount: number, reason: string) => void;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   dismissToast: (id: string) => void;
+  updateCurrentUser: (updates: Partial<Pick<User, 'name' | 'avatar' | 'pickupLocation'>>) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -63,7 +64,7 @@ function saveToStorage<T>(key: string, value: T): void {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User>(MOCK_USERS[0]);
+  const [currentUser, setCurrentUser] = useState<User>(() => loadFromStorage('bb_current_user', MOCK_USERS[0]));
   const [users] = useState<User[]>(MOCK_USERS);
   const [items, setItems] = useState<Item[]>(() => loadFromStorage('bb_items', MOCK_ITEMS));
   const [requests, setRequests] = useState<BorrowRequest[]>(() => loadFromStorage('bb_requests', MOCK_REQUESTS));
@@ -75,6 +76,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => { saveToStorage('bb_items', items); }, [items]);
+  useEffect(() => { saveToStorage('bb_current_user', currentUser); }, [currentUser]);
   useEffect(() => { saveToStorage('bb_requests', requests); }, [requests]);
   useEffect(() => { saveToStorage('bb_transactions', transactions); }, [transactions]);
   useEffect(() => { saveToStorage('bb_lost', lostItems); }, [lostItems]);
@@ -141,6 +143,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCreditHistory((prev) => [entry, ...prev]);
   }, []);
 
+  const updateCurrentUser = useCallback((updates: Partial<Pick<User, 'name' | 'avatar' | 'pickupLocation'>>) => {
+    setCurrentUser((prev) => ({ ...prev, ...updates }));
+    showToast('Profile updated', 'success');
+  }, [showToast]);
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -164,6 +171,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCredits,
       showToast,
       dismissToast,
+      updateCurrentUser,
     }}>
       {children}
     </AppContext.Provider>

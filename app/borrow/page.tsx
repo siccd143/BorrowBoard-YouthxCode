@@ -28,6 +28,24 @@ const conditionStyles: Record<string, string> = {
   fair: 'bg-amber-50 text-amber-700 border-amber-100',
 };
 
+const itemImages: Record<string, string> = {
+  item1: '/ti84.png',
+  item2: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=900&q=80',
+  item3: '/safetygoggles.jpg',
+  item5: '/toolkit.jpg',
+  item7: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=80',
+  calculator: '/ti84.png',
+  charger: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=900&q=80',
+  science: '/safetygoggles.jpg',
+  robotics: '/toolkit.jpg',
+  tech: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80',
+  media: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80',
+  sports: 'https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?auto=format&fit=crop&w=900&q=80',
+  art: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80',
+  'school-supply': 'https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?auto=format&fit=crop&w=900&q=80',
+  other: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=900&q=80',
+};
+
 const LOCATIONS = ['All', 'Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym'];
 const CATEGORIES: Array<{ value: string; label: string }> = [
   { value: 'all', label: 'All Categories' },
@@ -156,49 +174,53 @@ export default function BorrowPage() {
             const cfg = categoryConfig[item.category] ?? categoryConfig.other;
             const Icon = cfg.icon;
             return (
-              <div key={item.id} className="group bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-md hover:shadow-indigo-50 rounded-2xl p-4 shadow-sm transition-all flex flex-col">
-                {/* Icon area */}
-                <div className={`w-full h-24 ${cfg.bg} rounded-xl flex items-center justify-center mb-4 relative`}>
-                  <Icon className={`w-9 h-9 ${cfg.text}`} />
+              <div key={item.id} className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-amber-200 hover:shadow-xl hover:shadow-stone-900/10">
+                <div className="relative h-44 overflow-hidden bg-stone-100">
+                  <img src={itemImages[item.id] || itemImages[item.category] || itemImages.other} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                  <div className={`absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-xl ${cfg.bg} shadow-sm`}>
+                    <Icon className={`h-4 w-4 ${cfg.text}`} />
+                  </div>
                   {item.isExpensive && (
-                    <span className="absolute top-2 right-2 bg-amber-100 text-amber-700 text-xs font-semibold px-1.5 py-0.5 rounded-full border border-amber-200">Valuable</span>
+                    <span className="absolute right-3 top-3 rounded-full border border-amber-200 bg-amber-100 px-2 py-1 text-xs font-bold text-amber-800">Valuable</span>
                   )}
                 </div>
 
-                {/* Info */}
-                <div className="flex items-start gap-2 mb-1.5">
-                  <h3 className="text-sm font-semibold text-gray-900 flex-1 leading-tight">{item.name}</h3>
-                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full border shrink-0 ${conditionStyles[item.condition]}`}>{item.condition}</span>
-                </div>
+                <div className="flex flex-1 flex-col p-4">
+                  <div className="mb-2 flex items-start gap-2">
+                    <h3 className="flex-1 text-base font-extrabold leading-tight text-gray-950">{item.name}</h3>
+                    <span className={`shrink-0 rounded-full border px-2 py-1 text-xs font-bold ${conditionStyles[item.condition]}`}>{item.condition}</span>
+                  </div>
 
-                <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full w-fit mb-3">{cfg.label}</span>
+                  <span className="mb-3 w-fit rounded-full bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-500">{cfg.label}</span>
 
-                <div className="space-y-1.5 text-xs text-gray-400 mb-4 flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">{item.ownerName[0]}</div>
-                    <span className="text-gray-600 font-medium">{item.ownerName}</span>
-                    <div className="flex items-center gap-0.5 ml-auto">
-                      <Shield className="w-3 h-3 text-emerald-500" />
-                      <span className="text-gray-500 font-medium">{item.ownerTrustScore}</span>
+                  <div className="mb-4 flex-1 space-y-1.5 text-xs text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{item.ownerName[0]}</div>
+                      <span className="font-medium text-gray-600">{item.ownerName}</span>
+                      <div className="ml-auto flex items-center gap-0.5">
+                        <Shield className="h-3 w-3 text-emerald-500" />
+                        <span className="font-medium text-gray-500">{item.ownerTrustScore}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3" />
+                      <span>{item.availabilityLabel}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3 w-3" />
+                      <span>{item.pickupLocation}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-3 h-3" />
-                    <span>{item.availabilityLabel}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3" />
-                    <span>{item.pickupLocation}</span>
-                  </div>
-                </div>
 
-                <Link
-                  href={`/request?item=${item.id}&category=${item.category}&name=${encodeURIComponent(item.name)}`}
-                  className="w-full flex items-center justify-center gap-1.5 bg-gray-950 hover:bg-gray-800 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors cursor-pointer"
-                >
-                  Request
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
+                  <Link
+                    href={`/request?item=${item.id}&category=${item.category}&name=${encodeURIComponent(item.name)}`}
+                    className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-gray-950 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+                  >
+                    Request
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               </div>
             );
           })}

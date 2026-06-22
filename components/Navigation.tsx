@@ -8,10 +8,12 @@ import {
   ClipboardList,
   Home,
   LayoutDashboard,
+  LogIn,
   Menu,
   Play,
   Plus,
   Search,
+  UserRound,
   ShoppingBag,
   Star,
   X,
@@ -28,8 +30,10 @@ const navItems = [
   { href: "/list-item", label: "List Item", icon: Plus },
   { href: "/lost-found", label: "Lost & Found", icon: Search },
   { href: "/credits", label: "Credits", icon: Star },
+  { href: "/profile", label: "Profile", icon: UserRound },
   { href: "/schedule", label: "Schedule", icon: Calendar },
   { href: "/demo", label: "Demo Mode", icon: Play },
+  { href: "/auth", label: "Sign In", icon: LogIn },
 ];
 
 export default function Navigation() {
@@ -96,7 +100,7 @@ export default function Navigation() {
 
       <div className="relative border-t border-white/10 px-3 py-4">
         <Link
-          href="/dashboard"
+          href="/profile"
           onClick={onNav}
           className="group flex items-center gap-3 rounded-lg bg-white/[0.07] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-colors hover:bg-white/[0.12]"
         >
