@@ -1,105 +1,82 @@
 import sqlite3
-class Database:
-    def __init__(self, db_name):
-        self.conn = sqlite3.connect(db_name)
-        self.cursor = self.conn.cursor()
-        self.create_table()
 
-    def create_table(self):
-        # Initializes a table with columns for id, name, and email, offerings, needs, and 7-period schedules
-        self.cursor.execute('''
+class ItemSharingDatabase:
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.create_tables()
+
+    def _get_connection(self):
+        return sqlite3.connect(self.db_name)
+
+    def create_tables(self):
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                offerings TEXT,
-                needs TEXT,
-                schedule_1 TEXT,
-                schedule_2 TEXT,
-                schedule_3 TEXT,
-                schedule_4 TEXT,
-                schedule_5 TEXT,
-                schedule_6 TEXT,
-                schedule_7 TEXT
+                grade INTEGER
             )
         ''')
-        self.conn.commit()
-
-    def stop(self):
-        self.conn.close()
-
-    def add_user(self, name, email, offerings, needs, schedules):
-        # Adds a new user to the database with their offerings, needs, and 7-period schedules
-        self.cursor.execute('''
-            INSERT INTO users (name, email, offerings, needs, schedule_1, schedule_2, schedule_3, schedule_4, schedule_5, schedule_6, schedule_7)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (name, email, offerings, needs, *schedules))
-        self.conn.commit()
-
-    def get_user(self, email):
-        # Retrieves a user's information from the database based on their email
-        self.cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
-        return self.cursor.fetchone()
-    
-    def update_user(self, email, name=None, offerings=None, needs=None, schedules=None):
-        # Updates a user's information in the database based on their email
-        updates = []
-        params = []
-        if name:
-            updates.append("name = ?")
-            params.append(name)
-        if offerings:
-            updates.append("offerings = ?")
-            params.append(offerings)
-        if needs:
-            updates.append("needs = ?")
-            params.append(needs)
-        if schedules:
-            for i in range(7):
-                updates.append(f"schedule_{i+1} = ?")
-                params.append(schedules[i])
         
-        params.append(email)
-        self.cursor.execute(f'''
-            UPDATE users SET {', '.join(updates)} WHERE email = ?
-        ''', params)
-        self.conn.commit()
-    
-    def delete_user(self, email):
-        # Deletes a user from the database based on their email
-        self.cursor.execute('DELETE FROM users WHERE email = ?', (email,))
-        self.conn.commit()
-    
-    def get_all_users(self):
-        # Retrieves all users from the database
-        self.cursor.execute('SELECT * FROM users')
-        return self.cursor.fetchall()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS items (
+                item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_email TEXT,
+                item_name TEXT CHECK(item_name IN (
+                    'scissors', 'backpack', 'pen', 'pencil', 'calculator', 
+                    'notebook', 'eraser', 'ruler', 'sharpener', 'water_bottle'
+                )),
+                status TEXT CHECK(status IN ('offering', 'searching')),
+                FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE
+            )
+        ''')
+        conn.commit()
+        conn.close()
 
-class User:
-    def __init__(self, name, email, offerings, needs, schedules):
-        self.name = name
-        self.email = email
-        self.offerings = offerings
-        self.needs = needs
-        self.schedules = schedules  # List of 7-period schedules
+    def add_user(self, email, name, grade):
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (email, name, grade) VALUES (?, ?, ?)', (email, name, grade))
+        conn.commit()
+        conn.close()
 
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "email": self.email,
-            "offerings": self.offerings,
-            "needs": self.needs,
-            "schedules": self.schedules
-        }
+    def add_item(self, user_email, item_name, status):
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO items (user_email, item_name, status) 
+            VALUES (?, ?, ?)
+        ''', (user_email, item_name.lower(), status.lower()))
+        conn.commit()
+        conn.close()
+
+    def find_matches(self, user_email):
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT 
+                u.email AS peer_email,
+                u.name AS peer_name,
+                u.grade AS peer_grade,
+                i1.item_name AS item,
+                i1.status AS my_status,
+                i2.status AS peer_status
+            FROM items i1
+            JOIN items i2 ON i1.item_name = i2.item_name AND i1.status != i2.status
+            JOIN users u ON i2.user_email = u.email
+            WHERE i1.user_email = ?
+        ''', (user_email,))
+        
+        matches = cursor.fetchall()
+        conn.close()
+        return matches
     
-    def from_dict(data):
-        return User(
-            name=data.get("name"),
-            email=data.get("email"),
-            offerings=data.get("offerings"),
-            needs=data.get("needs"),
-            schedules=data.get("schedules", [""] * 7)
-        )
-    
-    def to_database(self, db):
-        db.add_user(self.name, self.email, self.offerings, self.needs, self.schedules)
+    def get_user(self, user_email):
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE email = ?', (user_email,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
