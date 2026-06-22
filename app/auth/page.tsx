@@ -52,7 +52,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#120f0b] text-white lg:-ml-64 lg:-mt-0">
+    <div className="min-h-screen bg-[#120f0b] text-white">
       <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
         <section className="relative hidden overflow-hidden lg:block">
           <img
