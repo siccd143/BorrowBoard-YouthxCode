@@ -12,6 +12,7 @@ import { getPostAuthPath } from "@/lib/authRedirect";
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const isHome = pathname === "/";
   const isAuth = pathname === "/auth";
   const isOnboarding = pathname === "/onboarding";
   const isAuthFlow = isAuth || isOnboarding;
@@ -54,7 +55,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <main className="flex min-h-screen items-center justify-center bg-stone-950 text-sm font-bold text-amber-100">
           Loading BorrowBoard...
         </main>
-      ) : isAuthFlow ? (
+      ) : isAuthFlow || isHome ? (
         children
       ) : (
         <>

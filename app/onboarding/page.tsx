@@ -53,7 +53,7 @@ export default function OnboardingPage() {
       studentId: studentId.trim(),
       pickupLocation,
     });
-    router.push('/dashboard');
+    router.push('/');
   };
 
   return (

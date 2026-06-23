@@ -8,5 +8,5 @@ export async function getPostAuthPath(supabase: SupabaseClient, userId: string) 
     .maybeSingle();
 
   const hasFinishedProfile = Boolean(data?.name && data.school && data.student_id);
-  return hasFinishedProfile ? '/dashboard' : '/onboarding';
+  return hasFinishedProfile ? '/' : '/onboarding';
 }
