@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BorrowBoard
 
-## Getting Started
+BorrowBoard is a school borrowing app built with Next.js, Supabase, Tailwind CSS, and a trained image classifier for item listing and lost-and-found flows.
 
-First, run the development server:
+## Local Setup
+
+Install app dependencies:
+
+```bash
+npm install
+```
+
+Create `.env.local` from `.env.example` and fill in the Supabase values:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+```
+
+Install the local image model runtime:
+
+```bash
+npm run model:install
+```
+
+Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Image Classifier
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Locally, `/api/classify-image` uses `models/yolo26n.pt` through `scripts/classify_image.py`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+On Vercel, use hosted Roboflow inference instead of local Python/PyTorch:
 
-## Learn More
+```bash
+npx vercel env add ROBOFLOW_API_KEY production
+npx vercel env add ROBOFLOW_MODEL production
+```
 
-To learn more about Next.js, take a look at the following resources:
+Use this model value unless the model is changed:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+school-supplies-gz456/1
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+After adding or changing Vercel env vars, redeploy:
 
-## Deploy on Vercel
+```bash
+npx vercel deploy --prod
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Keep `ROBOFLOW_API_KEY` server-only. Never rename it to `NEXT_PUBLIC_ROBOFLOW_API_KEY`.

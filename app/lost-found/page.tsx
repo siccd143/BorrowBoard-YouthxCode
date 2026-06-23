@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo, Suspense } from 'react';
+import { ChangeEvent, useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
 import { LostItem, FoundItem, ItemCategory } from '@/lib/types';
 import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle, Sparkles, Shield } from 'lucide-react';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
+import { classifyImage } from '@/lib/clientImageModel';
 
 const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office', 'Front Entrance', 'Science Room', 'Math Room'];
 
@@ -29,6 +30,7 @@ function LostFoundContent() {
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [verificationAnswer, setVerificationAnswer] = useState('');
   const [claimedItems, setClaimedItems] = useState<Set<string>>(new Set());
+  const [foundPhotoStatus, setFoundPhotoStatus] = useState('Upload photo for model classification');
 
   const [lostForm, setLostForm] = useState({
     itemName: '',
@@ -101,6 +103,39 @@ function LostFoundContent() {
     showToast(`Found item reported! +10 credits when it gets claimed.`, 'success');
     setActiveTab('found');
     setFoundForm({ itemName: '', category: 'other', description: '', locationFound: '', timeFound: '', verificationDetail: '' });
+  };
+
+  const handleFoundPhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setFoundPhotoStatus('Running trained model...');
+
+    try {
+      const result = await classifyImage(file);
+
+      if (!result.ok || !result.category) {
+        setFoundPhotoStatus(result.error || 'Model could not classify this photo');
+        showToast(result.error || 'Model could not classify this photo.', 'info');
+        return;
+      }
+
+      setFoundForm((prev) => ({
+        ...prev,
+        itemName: prev.itemName || result.displayName || result.label || prev.itemName,
+        category: result.category || prev.category,
+        description: prev.description || (result.label ? `Detected by BorrowBoard model: ${result.label}` : prev.description),
+      }));
+      setFoundPhotoStatus(`${result.displayName || result.label} / ${Math.round((result.confidence || 0) * 100)}% confidence`);
+      showToast(`Model classified this as ${result.displayName || result.label}.`, 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not classify this image.';
+      setFoundPhotoStatus(message);
+      showToast(message, 'error');
+    } finally {
+      event.target.value = '';
+    }
   };
 
   const handleClaim = (foundId: string) => {
@@ -352,10 +387,12 @@ function LostFoundContent() {
             <Search className="w-5 h-5 text-green-500" />
             <h2 className="font-bold text-slate-900">Report a Found Item</h2>
           </div>
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-green-300 transition-colors">
+          <label className="block border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-green-300 transition-colors">
+            <input type="file" accept="image/*" onChange={handleFoundPhotoUpload} className="sr-only" />
             <Upload className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-            <p className="text-xs text-slate-500">Upload photo <span className="text-slate-400">(AI photo classification coming soon)</span></p>
-          </div>
+            <p className="text-xs font-semibold text-slate-600">{foundPhotoStatus}</p>
+            <p className="mt-1 text-[11px] text-slate-400">Uses the trained BorrowBoard YOLO model when inference is configured.</p>
+          </label>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Item Name / Type *</label>
