@@ -8,7 +8,8 @@ import { ItemCategory } from '@/lib/types';
 export const runtime = 'nodejs';
 
 const execFileAsync = promisify(execFile);
-const ROBOFLOW_MODEL = 'school-supplies-gz456/1';
+const ROBOFLOW_MODEL = process.env.ROBOFLOW_MODEL || 'school-supplies-gz456/1';
+const isVercel = Boolean(process.env.VERCEL);
 
 type ModelDetection = {
   label: string;
@@ -119,6 +120,15 @@ export async function POST(request: Request) {
         category: mapLabelToCategory(top.label),
         confidence: top.confidence,
         detections: roboflowDetections.slice(0, 5),
+      });
+    }
+
+    if (isVercel) {
+      return Response.json({
+        ok: false,
+        modelReady: false,
+        provider: 'vercel',
+        error: 'Set ROBOFLOW_API_KEY in Vercel to enable hosted image classification.',
       });
     }
 
