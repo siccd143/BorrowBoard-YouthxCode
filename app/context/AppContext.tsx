@@ -115,7 +115,6 @@ function loadFromStorage<T>(key: string, fallback: T): T {
     return fallback;
   }
 }
-
 function saveToStorage<T>(key: string, value: T): void {
   if (typeof window === 'undefined') return;
   try {
