@@ -153,9 +153,9 @@ export default function AuthPage() {
           </div>
         </section>
 
-        <section className="relative flex min-w-0 items-start justify-center overflow-visible px-4 py-4 sm:px-6 sm:py-5 lg:items-center lg:px-8 lg:py-6">
+        <section className="relative flex min-w-0 items-start justify-center overflow-visible px-4 py-3 sm:px-6 sm:py-4 lg:items-center lg:px-8 lg:py-5">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_10%,rgba(251,191,36,0.20),transparent_28%),radial-gradient(circle_at_22%_80%,rgba(99,102,241,0.18),transparent_34%)]" />
-          <div className="relative w-full max-w-[400px] rounded-3xl border border-white/12 bg-white/[0.07] p-4 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:p-5">
+          <div className="relative max-h-[calc(100dvh-1.5rem)] w-full max-w-[400px] overflow-y-auto rounded-3xl border border-white/12 bg-white/[0.07] p-4 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:max-h-[calc(100dvh-2rem)] sm:p-5">
             <div className="mb-4 text-center">
               <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-stone-950 ring-1 ring-amber-100/20">
                 <img src="/borrowboard-logo.png" alt="" className="h-full w-full object-cover" />
