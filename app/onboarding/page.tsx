@@ -57,9 +57,9 @@ export default function OnboardingPage() {
   };
 
   return (
-    <main className="min-h-dvh overflow-hidden bg-[#120f0b] px-4 py-8 text-white sm:px-6">
+    <main className="min-h-dvh overflow-x-hidden bg-[#120f0b] px-4 py-6 text-white sm:px-6 lg:py-8">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(251,191,36,0.22),transparent_34%),radial-gradient(circle_at_82%_8%,rgba(99,102,241,0.20),transparent_30%)]" />
-      <div className="relative mx-auto grid min-h-[calc(100dvh-4rem)] max-w-6xl items-center gap-8 lg:grid-cols-[0.9fr_1fr]">
+      <div className="relative mx-auto grid max-w-6xl items-start gap-8 lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-[0.9fr_1fr] lg:items-center">
         <section>
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-100/20 bg-white/[0.08] px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-100">
             <BadgeCheck className="h-3.5 w-3.5" />
