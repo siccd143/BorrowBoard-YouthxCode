@@ -1,16 +1,49 @@
 # BorrowBoard
 
-BorrowBoard is a school borrowing app built with Next.js, Supabase, Tailwind CSS, and a trained image classifier for item listing and lost-and-found flows.
+BorrowBoard is a student-to-student school resource network for borrowing classroom items, lending supplies, and recovering lost belongings. It helps students find things like chargers, calculators, safety goggles, rulers, and tools through trust scores, schedule-aware matching, pickup locations, QR-style handoffs, and a credits system.
+
+## What It Does
+
+- Lets students browse available school items and request a match.
+- Allows students to list items they are willing to lend.
+- Tracks borrowing/lending activity through a dashboard.
+- Supports lost-and-found reports for missing or found items.
+- Uses profile details, grade, school, pickup location, and schedule windows to improve matches.
+- Includes credits, trust scores, return tracking, and handoff workflows.
+- Supports image-assisted item classification for listing and lost-and-found flows.
+
+## Main Pages
+
+- **Home:** premium product landing page for BorrowBoard.
+- **Auth:** email/password and Microsoft sign-in through Supabase Auth.
+- **Dashboard:** active handoffs, recommendations, trust score, and activity timeline.
+- **Borrow:** marketplace-style item browsing.
+- **Request:** matching flow for finding an item.
+- **List Item:** lender flow for adding items.
+- **Lost & Found:** report and match lost/found belongings.
+- **Schedule:** availability setup for smarter matching.
+- **Credits:** rewards and trust activity.
+- **Profile:** name, school info, pickup location, avatar, and sign out.
+
+## Tech Stack
+
+- **Framework:** Next.js App Router
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Auth + Database:** Supabase
+- **Icons:** lucide-react
+- **Model Runtime:** local YOLO/Python flow, with optional hosted inference for production
+- **Deployment:** Vercel
 
 ## Local Setup
 
-Install app dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Create `.env.local` from `.env.example` and fill in the Supabase values:
+Create `.env.local` from `.env.example` and fill in your Supabase values:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
@@ -29,27 +62,46 @@ Start the app:
 npm run dev
 ```
 
+Open:
+
+```bash
+http://localhost:3000
+```
+
 ## Image Classifier
 
-Locally, `/api/classify-image` uses `models/yolo26n.pt` through `scripts/classify_image.py`.
+Locally, `/api/classify-image` can use the included model file through:
 
-On Vercel, use hosted Roboflow inference instead of local Python/PyTorch:
+```text
+models/yolo26n.pt
+scripts/classify_image.py
+```
+
+For Vercel production, use hosted model inference or a separate Python model API instead of running PyTorch directly inside the Next.js route.
+
+Optional Roboflow environment variables:
 
 ```bash
 npx vercel env add ROBOFLOW_API_KEY production
 npx vercel env add ROBOFLOW_MODEL production
 ```
 
-Use this model value unless the model is changed:
+Current model path value:
 
 ```bash
 school-supplies-gz456/1
 ```
 
-After adding or changing Vercel env vars, redeploy:
+Keep `ROBOFLOW_API_KEY` server-only. Do not expose it with `NEXT_PUBLIC_`.
 
-```bash
-npx vercel deploy --prod
-```
+## Credits
 
-Keep `ROBOFLOW_API_KEY` server-only. Never rename it to `NEXT_PUBLIC_ROBOFLOW_API_KEY`.
+BorrowBoard was built as a collaborative project.
+
+- **Ayaan:** product idea, design direction, frontend decisions, Supabase/auth setup, feature planning, testing, and project coordination.
+- **Kevin:** trained/provided the item classification model work and helped shape the AI/model direction.
+- **Codex / OpenAI:** assisted with implementation, UI development, debugging, responsive fixes, Supabase/Vercel setup, and code integration.
+
+## Notes
+
+This project is still evolving. Some features use demo/mock data while the backend, model integration, and production workflows continue to be improved.
