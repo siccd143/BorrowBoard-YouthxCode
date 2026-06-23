@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
 import { DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
 import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
+import { classifyImage } from '@/lib/clientImageModel';
 
 const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> = [
   { value: 'excellent', label: 'Excellent', desc: 'Like new, no wear' },
@@ -19,6 +20,7 @@ const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Main 
 export default function ListItemPage() {
   const { addItem, currentUser, showToast } = useApp();
   const [submitted, setSubmitted] = useState(false);
+  const [photoStatus, setPhotoStatus] = useState('Upload item photo');
   const [form, setForm] = useState({
     name: '',
     category: 'school-supply' as ItemCategory,
@@ -52,6 +54,39 @@ export default function ListItemPage() {
         ? prev.availableDays.filter((d) => d !== day)
         : [...prev.availableDays, day],
     }));
+  };
+
+  const handlePhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setPhotoStatus('Running trained model...');
+
+    try {
+      const result = await classifyImage(file);
+
+      if (!result.ok || !result.category) {
+        setPhotoStatus(result.error || 'Model could not classify this photo');
+        showToast(result.error || 'Model could not classify this photo.', 'info');
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        name: prev.name || result.displayName || result.label || prev.name,
+        category: result.category || prev.category,
+        description: prev.description || (result.label ? `Detected by BorrowBoard model: ${result.label}` : prev.description),
+      }));
+      setPhotoStatus(`${result.displayName || result.label} / ${Math.round((result.confidence || 0) * 100)}% confidence`);
+      showToast(`Model classified this as ${result.displayName || result.label}.`, 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not classify this image.';
+      setPhotoStatus(message);
+      showToast(message, 'error');
+    } finally {
+      event.target.value = '';
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -134,14 +169,15 @@ export default function ListItemPage() {
       <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-stone-950/10 bg-white/85 p-6 shadow-sm">
         <div>
           <label className="mb-1.5 block text-sm font-semibold text-slate-700">Item Photo</label>
-          <div className="relative overflow-hidden rounded-3xl border border-stone-950/10 bg-stone-950 p-6 text-center text-white transition-colors cursor-pointer hover:border-amber-300">
+          <label className="relative block overflow-hidden rounded-3xl border border-stone-950/10 bg-stone-950 p-6 text-center text-white transition-colors cursor-pointer hover:border-amber-300">
+            <input type="file" accept="image/*" onChange={handlePhotoUpload} className="sr-only" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.22),transparent_32%)]" />
             <div className="relative">
               <Camera className="mx-auto mb-2 h-7 w-7 text-amber-100" />
-              <p className="text-sm font-bold">Upload item photo</p>
-              <p className="mt-1 text-xs text-stone-400">This will become the marketplace image.</p>
+              <p className="text-sm font-bold">{photoStatus}</p>
+              <p className="mt-1 text-xs text-stone-400">The trained YOLO model will suggest the item name and category.</p>
             </div>
-          </div>
+          </label>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
