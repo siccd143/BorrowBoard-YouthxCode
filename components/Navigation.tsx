@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import {
   Calendar,
   ClipboardList,
   LayoutDashboard,
-  LogIn,
+  LogOut,
   Menu,
   Play,
   Plus,
@@ -20,6 +20,7 @@ import {
 import { useApp } from "@/app/context/AppContext";
 import AnimatedShaderBackground from "@/components/ui/animated-shader-background";
 import UserAvatar from "@/components/UserAvatar";
+import { createClient } from "@/utils/supabase/client";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -31,15 +32,22 @@ const navItems = [
   { href: "/profile", label: "Profile", icon: UserRound },
   { href: "/schedule", label: "Schedule", icon: Calendar },
   { href: "/demo", label: "Demo Mode", icon: Play },
-  { href: "/auth", label: "Sign In", icon: LogIn },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const { currentUser } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const supabase = useMemo(() => createClient(), []);
 
   const isActive = (href: string) => pathname === href;
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setMobileOpen(false);
+    router.replace("/auth");
+  };
 
   const NavLink = ({
     href,
@@ -111,6 +119,14 @@ export default function Navigation() {
           </div>
           <div className="h-2 w-2 shrink-0 rounded-full bg-emerald-300 shadow-[0_0_16px_rgba(110,231,183,0.75)]" title="Online" />
         </Link>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-bold uppercase tracking-wide text-stone-300 transition hover:bg-white/[0.1] hover:text-white"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Sign out
+        </button>
       </div>
     </>
   );

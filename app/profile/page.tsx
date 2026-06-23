@@ -1,9 +1,11 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Check, GraduationCap, IdCard, MapPin, Save, School, UserRound } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Check, GraduationCap, IdCard, LogOut, MapPin, Save, School, UserRound } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
 import UserAvatar from '@/components/UserAvatar';
+import { createClient } from '@/utils/supabase/client';
 
 const avatarOptions = [
   'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Man%20Student.png',
@@ -17,6 +19,7 @@ const avatarOptions = [
 const locations = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym'];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { currentUser, updateCurrentUser } = useApp();
   const [name, setName] = useState(currentUser.name);
   const [grade, setGrade] = useState(currentUser.grade || 10);
@@ -28,6 +31,11 @@ export default function ProfilePage() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     updateCurrentUser({ name: name.trim() || currentUser.name, grade, school: school.trim(), studentId: studentId.trim(), pickupLocation, avatar });
+  };
+
+  const handleSignOut = async () => {
+    await createClient().auth.signOut();
+    router.replace('/auth');
   };
 
   return (
@@ -112,6 +120,10 @@ export default function ProfilePage() {
           <button type="submit" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-950 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-amber-700">
             <Save className="h-4 w-4" />
             Save profile
+          </button>
+          <button type="button" onClick={handleSignOut} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-950/10 bg-white px-5 py-3 text-sm font-extrabold text-stone-950 transition hover:bg-stone-100">
+            <LogOut className="h-4 w-4" />
+            Sign out
           </button>
         </section>
       </form>

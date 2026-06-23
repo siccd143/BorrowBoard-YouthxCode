@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
 import { AvailabilityBlock, AvailabilityType, DayOfWeek } from '@/lib/types';
-import { Clock, MapPin, Plus, Trash2, Calendar, Sparkles, Zap } from 'lucide-react';
+import { Clock, MapPin, Plus, Trash2, Calendar, Sparkles, Zap, Upload } from 'lucide-react';
+import { parseScheduleText } from '@/lib/scheduleUpload';
 
 const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -43,6 +44,30 @@ export default function SchedulePage() {
   });
 
   const myAvailability = availability.filter((a) => a.userId === currentUser.id);
+
+  const handleScheduleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (!/\.(txt|csv)$/i.test(file.name)) {
+      showToast('Upload a .txt or .csv schedule for now.', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    const blocks = parseScheduleText(await file.text(), currentUser.id, currentUser.pickupLocation);
+
+    if (blocks.length === 0) {
+      showToast('No schedule windows found. Try Monday, 11:20 AM - 11:50 AM, Library, Lunch.', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    blocks.forEach(addAvailability);
+    showToast(`Imported ${blocks.length} schedule windows.`, 'success');
+    event.target.value = '';
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,18 +125,25 @@ export default function SchedulePage() {
         </div>
       </section>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900">Weekly availability</h2>
           <p className="text-slate-500 text-sm mt-0.5">Add lunch, free period, before-school, or after-school windows.</p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 rounded-xl bg-stone-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          Add Block
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-stone-950/10 bg-white/80 px-4 py-2.5 text-sm font-semibold text-stone-800 transition-colors hover:bg-amber-50">
+            <Upload className="h-4 w-4" />
+            Import Schedule
+            <input type="file" accept=".txt,.csv,text/plain,text/csv" onChange={handleScheduleUpload} className="sr-only" />
+          </label>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="flex items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Add Block
+          </button>
+        </div>
       </div>
 
       {/* Add form */}
