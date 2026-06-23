@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import {
   Calendar,
   ClipboardList,
+  Code2,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -31,7 +32,6 @@ const navItems = [
   { href: "/credits", label: "Credits", icon: Star },
   { href: "/profile", label: "Profile", icon: UserRound },
   { href: "/schedule", label: "Schedule", icon: Calendar },
-  { href: "/demo", label: "Demo Mode", icon: Play },
 ];
 
 export default function Navigation() {
@@ -102,6 +102,20 @@ export default function Navigation() {
         {navItems.map((item) => (
           <NavLink key={item.href} {...item} onClick={onNav} />
         ))}
+        <div className="mt-5 border-t border-white/10 pt-4">
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-amber-100/35">Judges</p>
+          <NavLink href="/demo" label="Demo Mode" icon={Play} onClick={onNav} />
+          <a
+            href="https://github.com/siccd143/BorrowBoard-YouthxCode"
+            target="_blank"
+            rel="noreferrer"
+            className="group relative mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-stone-300/80 transition-all duration-300 hover:bg-white/[0.08] hover:text-white"
+            onClick={onNav}
+          >
+            <Code2 className="h-4 w-4 shrink-0 text-stone-500 transition-colors group-hover:text-amber-200" />
+            <span>Source Code</span>
+          </a>
+        </div>
       </nav>
 
       <div className="relative border-t border-white/10 px-3 py-4">

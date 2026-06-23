@@ -5,22 +5,9 @@ import Link from 'next/link';
 import { useApp } from '@/app/context/AppContext';
 import {
   Search, Shield, MapPin, Clock, Filter, X,
-  Calculator, Plug, FlaskConical, Package, Wrench, Camera, Dumbbell, Monitor, Paintbrush, ChevronRight, Star
+  ChevronRight, Package, Star
 } from 'lucide-react';
-import { ItemCategory } from '@/lib/types';
-
-const categoryConfig: Record<string, { icon: React.ElementType; bg: string; text: string; label: string }> = {
-  calculator: { icon: Calculator, bg: 'bg-blue-50', text: 'text-blue-600', label: 'Calculator' },
-  charger: { icon: Plug, bg: 'bg-amber-50', text: 'text-amber-600', label: 'Charger' },
-  science: { icon: FlaskConical, bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Science' },
-  'school-supply': { icon: Package, bg: 'bg-orange-50', text: 'text-orange-600', label: 'School Supply' },
-  robotics: { icon: Wrench, bg: 'bg-violet-50', text: 'text-violet-600', label: 'Robotics' },
-  media: { icon: Camera, bg: 'bg-pink-50', text: 'text-pink-600', label: 'Media' },
-  sports: { icon: Dumbbell, bg: 'bg-red-50', text: 'text-red-500', label: 'Sports' },
-  tech: { icon: Monitor, bg: 'bg-indigo-50', text: 'text-indigo-600', label: 'Tech' },
-  art: { icon: Paintbrush, bg: 'bg-rose-50', text: 'text-rose-500', label: 'Art' },
-  other: { icon: Package, bg: 'bg-gray-50', text: 'text-gray-500', label: 'Other' },
-};
+import { CATEGORY_FILTER_OPTIONS, categoryConfig } from '@/lib/categories';
 
 const conditionStyles: Record<string, string> = {
   excellent: 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -47,19 +34,6 @@ const itemImages: Record<string, string> = {
 };
 
 const LOCATIONS = ['All', 'Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym'];
-const CATEGORIES: Array<{ value: string; label: string }> = [
-  { value: 'all', label: 'All Categories' },
-  { value: 'calculator', label: 'Calculator' },
-  { value: 'charger', label: 'Charger' },
-  { value: 'science', label: 'Science' },
-  { value: 'school-supply', label: 'School Supply' },
-  { value: 'robotics', label: 'Robotics' },
-  { value: 'media', label: 'Media' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'tech', label: 'Tech' },
-  { value: 'art', label: 'Art' },
-];
-
 export default function BorrowPage() {
   const { items, currentUser } = useApp();
   const [search, setSearch] = useState('');
@@ -81,7 +55,7 @@ export default function BorrowPage() {
   }, [items, search, category, location, minTrust, currentUser.id]);
 
   const activeFilters = [
-    ...(category !== 'all' ? [{ key: 'category', label: CATEGORIES.find((c) => c.value === category)?.label ?? category }] : []),
+    ...(category !== 'all' ? [{ key: 'category', label: CATEGORY_FILTER_OPTIONS.find((c) => c.value === category)?.label ?? category }] : []),
     ...(location !== 'All' ? [{ key: 'location', label: location }] : []),
     ...(minTrust > 0 ? [{ key: 'trust', label: `Trust ≥ ${minTrust}` }] : []),
   ];
@@ -133,7 +107,7 @@ export default function BorrowPage() {
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block uppercase tracking-wide">Category</label>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+              {CATEGORY_FILTER_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </div>
           <div>

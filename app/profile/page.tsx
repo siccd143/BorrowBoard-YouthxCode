@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, GraduationCap, IdCard, LogOut, MapPin, Save, School, UserRound } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
@@ -31,6 +31,26 @@ export default function ProfilePage() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     updateCurrentUser({ name: name.trim() || currentUser.name, grade, school: school.trim(), studentId: studentId.trim(), pickupLocation, avatar });
+  };
+
+  const handleAvatarUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+
+    if (file.size > 750_000) {
+      window.alert('Choose an image under 750 KB for now.');
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setAvatar(reader.result);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   };
 
   const handleSignOut = async () => {
@@ -103,6 +123,15 @@ export default function ProfilePage() {
         <section className="rounded-3xl border border-stone-950/10 bg-white/75 p-6 shadow-sm">
           <h2 className="text-xl font-extrabold text-stone-950">Choose an avatar</h2>
           <p className="mt-1 text-sm text-stone-500">Pick the icon classmates see during requests and handoffs.</p>
+
+          <label className="mt-5 flex cursor-pointer items-center gap-3 rounded-3xl border border-dashed border-stone-950/15 bg-white p-4 transition hover:border-amber-400 hover:bg-amber-50/50">
+            <input type="file" accept="image/*" onChange={handleAvatarUpload} className="sr-only" />
+            <UserAvatar avatar={avatar} name={name} className="h-14 w-14 bg-amber-50 ring-1 ring-stone-950/10" />
+            <span>
+              <span className="block text-sm font-extrabold text-stone-950">Upload your own profile pic</span>
+              <span className="mt-0.5 block text-xs font-semibold text-stone-500">PNG or JPG under 750 KB</span>
+            </span>
+          </label>
 
           <div className="mt-6 grid grid-cols-3 gap-3">
             {avatarOptions.map((option) => (

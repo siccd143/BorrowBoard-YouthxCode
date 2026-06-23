@@ -7,55 +7,21 @@ import { findMatches } from '@/lib/matching';
 import { BorrowRequest, DayOfWeek, ItemCategory, MatchResult, UrgencyLevel } from '@/lib/types';
 import {
   ArrowLeft,
-  Calculator,
-  Camera,
   CheckCircle,
-  Clock,
-  Dumbbell,
-  FlaskConical,
-  MapPin,
-  Monitor,
   Package,
-  Paintbrush,
-  Plug,
   Send,
   Shield,
   Sparkles,
   Star,
-  Wrench,
   Zap,
 } from 'lucide-react';
 import Link from 'next/link';
-
-const CATEGORIES: Array<{ value: ItemCategory; label: string }> = [
-  { value: 'calculator', label: 'Calculator' },
-  { value: 'charger', label: 'Charger' },
-  { value: 'science', label: 'Science' },
-  { value: 'school-supply', label: 'School Supply' },
-  { value: 'robotics', label: 'Robotics' },
-  { value: 'media', label: 'Media' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'tech', label: 'Tech' },
-  { value: 'art', label: 'Art' },
-  { value: 'other', label: 'Other' },
-];
+import { CATEGORY_OPTIONS, categoryConfig, inferItemCategory } from '@/lib/categories';
+import { getQrCells } from '@/lib/qrPattern';
 
 const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office'];
 const PERIODS = ['1st Period', '2nd Period', '3rd Period', '4th Period', '5th Period', 'Lunch A', 'Lunch B', '6th Period', '7th Period', 'After School'];
-
-const categoryIcons: Record<string, React.ElementType> = {
-  calculator: Calculator,
-  charger: Plug,
-  science: FlaskConical,
-  'school-supply': Package,
-  robotics: Wrench,
-  media: Camera,
-  sports: Dumbbell,
-  tech: Monitor,
-  art: Paintbrush,
-  other: Package,
-};
 
 function ScoreBar({ score }: { score: number }) {
   const color = score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-amber-500' : 'bg-stone-500';
@@ -66,10 +32,10 @@ function ScoreBar({ score }: { score: number }) {
   );
 }
 
-function QrGrid() {
+function QrGrid({ value }: { value: string }) {
   const cells = useMemo(
-    () => Array.from({ length: 49 }, (_, i) => [0, 1, 2, 7, 14, 42, 43, 44, 48].includes(i) || (i * 7 + i) % 4 === 0 || i % 6 === 0),
-    []
+    () => getQrCells(value),
+    [value]
   );
 
   return (
@@ -200,7 +166,7 @@ function RequestFormContent() {
               <div><p className="mb-0.5 text-white/45">Pickup</p><p className="font-semibold">{match.item.pickupLocation}</p></div>
               <div><p className="mb-0.5 text-white/45">Due By</p><p className="font-semibold">{match.overlapEnd}</p></div>
             </div>
-            <QrGrid />
+            <QrGrid value={`${txnId}:${match.item.id}:${currentUser.id}:${match.lender.id}`} />
             <div className="mt-4 rounded-full bg-white/15 py-1 text-center text-xs font-bold text-amber-100">Pending Approval</div>
           </div>
 
@@ -240,7 +206,7 @@ function RequestFormContent() {
         ) : (
           <div className="space-y-4">
             {matches.map((match, idx) => {
-              const Icon = categoryIcons[match.item.category] || Package;
+              const Icon = categoryConfig[match.item.category]?.icon || Package;
               return (
                 <div key={match.item.id} className={`rounded-3xl border bg-white/85 p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-stone-950/5 ${idx === 0 ? 'border-amber-200 ring-2 ring-amber-100' : 'border-stone-100'}`}>
                   <div className="mb-3 flex items-center justify-between">
@@ -307,12 +273,23 @@ function RequestFormContent() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-slate-700">Item Needed *</label>
-            <input type="text" required value={form.itemName} onChange={(e) => setForm({ ...form, itemName: e.target.value })} placeholder="e.g. TI-84 Calculator" className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <input
+              type="text"
+              required
+              value={form.itemName}
+              onChange={(e) => {
+                const nextName = e.target.value;
+                const inferred = inferItemCategory(nextName);
+                setForm({ ...form, itemName: nextName, category: inferred === 'other' ? form.category : inferred });
+              }}
+              placeholder="e.g. TI-84 Calculator"
+              className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-slate-700">Category *</label>
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as ItemCategory })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+              {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </div>
         </div>

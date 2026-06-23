@@ -5,19 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
 import { LostItem, FoundItem, ItemCategory } from '@/lib/types';
 import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle, Sparkles, Shield } from 'lucide-react';
-
-const CATEGORIES: Array<{ value: ItemCategory; label: string }> = [
-  { value: 'calculator', label: 'Calculator' },
-  { value: 'charger', label: 'Charger' },
-  { value: 'science', label: 'Science Equipment' },
-  { value: 'school-supply', label: 'School Supply' },
-  { value: 'robotics', label: 'Robotics / Tools' },
-  { value: 'media', label: 'Media' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'tech', label: 'Tech' },
-  { value: 'art', label: 'Art' },
-  { value: 'other', label: 'Other' },
-];
+import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
 
 const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office', 'Front Entrance', 'Science Room', 'Math Room'];
 
@@ -311,12 +299,23 @@ function LostFoundContent() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Item Name *</label>
-              <input type="text" required value={lostForm.itemName} onChange={(e) => setLostForm({ ...lostForm, itemName: e.target.value })} placeholder="e.g. USB-C Charger" className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input
+                type="text"
+                required
+                value={lostForm.itemName}
+                onChange={(e) => {
+                  const itemName = e.target.value;
+                  const inferred = inferItemCategory(itemName);
+                  setLostForm({ ...lostForm, itemName, category: inferred === 'other' ? lostForm.category : inferred });
+                }}
+                placeholder="e.g. USB-C Charger"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
               <select value={lostForm.category} onChange={(e) => setLostForm({ ...lostForm, category: e.target.value as ItemCategory })} className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
           </div>
@@ -360,12 +359,23 @@ function LostFoundContent() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Item Name / Type *</label>
-              <input type="text" required value={foundForm.itemName} onChange={(e) => setFoundForm({ ...foundForm, itemName: e.target.value })} placeholder="e.g. USB-C Charger" className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input
+                type="text"
+                required
+                value={foundForm.itemName}
+                onChange={(e) => {
+                  const itemName = e.target.value;
+                  const inferred = inferItemCategory(itemName);
+                  setFoundForm({ ...foundForm, itemName, category: inferred === 'other' ? foundForm.category : inferred });
+                }}
+                placeholder="e.g. USB-C Charger"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
               <select value={foundForm.category} onChange={(e) => setFoundForm({ ...foundForm, category: e.target.value as ItemCategory })} className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
           </div>

@@ -5,19 +5,7 @@ import { useApp } from '@/app/context/AppContext';
 import { DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
 import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-
-const CATEGORIES: Array<{ value: ItemCategory; label: string }> = [
-  { value: 'calculator', label: 'Calculator' },
-  { value: 'charger', label: 'Charger' },
-  { value: 'science', label: 'Science Equipment' },
-  { value: 'school-supply', label: 'School Supply' },
-  { value: 'robotics', label: 'Robotics / Tools' },
-  { value: 'media', label: 'Media / Photography' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'tech', label: 'Tech Accessories' },
-  { value: 'art', label: 'Art Supplies' },
-  { value: 'other', label: 'Other' },
-];
+import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
 
 const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> = [
   { value: 'excellent', label: 'Excellent', desc: 'Like new, no wear' },
@@ -159,12 +147,23 @@ export default function ListItemPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-slate-700">Item Name *</label>
-            <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. TI-84 Plus Calculator" className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <input
+              type="text"
+              required
+              value={form.name}
+              onChange={(e) => {
+                const nextName = e.target.value;
+                const inferred = inferItemCategory(nextName);
+                setForm({ ...form, name: nextName, category: inferred === 'other' ? form.category : inferred });
+              }}
+              placeholder="e.g. TI-84 Plus Calculator"
+              className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-slate-700">Category *</label>
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as ItemCategory })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+              {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </div>
         </div>

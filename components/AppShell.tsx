@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import ShaderBootScreen from "@/components/ShaderBootScreen";
 import ToastContainer from "@/components/Toast";
 import { createClient } from "@/utils/supabase/client";
+import { getPostAuthPath } from "@/lib/authRedirect";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -36,7 +37,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session && !isAuthFlow) router.replace("/auth");
-      if (session && isAuth) router.replace("/onboarding");
+      if (session && isAuth) {
+        getPostAuthPath(supabase, session.user.id).then((path) => router.replace(path));
+      }
     });
 
     return () => {

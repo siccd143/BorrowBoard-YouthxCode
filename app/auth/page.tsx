@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
 import { createClient } from '@/utils/supabase/client';
+import { getPostAuthPath } from '@/lib/authRedirect';
 
 function Typewriter({ words }: { words: string[] }) {
   const [wordIndex, setWordIndex] = useState(0);
@@ -58,7 +59,9 @@ export default function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.replace('/onboarding');
+      if (data.session?.user) {
+        getPostAuthPath(supabase, data.session.user.id).then((path) => router.replace(path));
+      }
     });
   }, [router, supabase]);
 
@@ -103,10 +106,10 @@ export default function AuthPage() {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       showToast('Signed in to BorrowBoard', 'success');
-      router.push('/onboarding');
+      router.push(data.user ? await getPostAuthPath(supabase, data.user.id) : '/onboarding');
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Could not sign in. Try again.', 'error');
     } finally {
@@ -118,7 +121,7 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
-        redirectTo: `${window.location.origin}/onboarding`,
+        redirectTo: `${window.location.origin}/auth`,
       },
     });
 

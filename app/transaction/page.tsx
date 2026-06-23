@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
 import { CheckCircle, Clock, Package, AlertCircle, QrCode, X } from 'lucide-react';
+import { getQrCells } from '@/lib/qrPattern';
 
 function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose, onConfirm }: {
   txnId: string;
@@ -14,6 +15,8 @@ function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  const cells = getQrCells(`${txnId}:${itemName}:${borrower}:${lender}`);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
@@ -32,16 +35,16 @@ function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose
             <div><p className="opacity-60">Pickup</p><p className="font-semibold">{location}</p></div>
             <div><p className="opacity-60">Due By</p><p className="font-semibold">{new Date(dueTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p></div>
           </div>
-          {/* Fake QR */}
           <div className="flex justify-center mt-4">
             <div className="w-20 h-20 bg-white rounded-lg p-1.5">
               <div className="w-full h-full grid grid-cols-7 gap-px">
-                {Array.from({ length: 49 }, (_, i) => (
-                  <div key={i} className={`rounded-sm ${[0,1,2,3,4,5,6,7,13,14,21,27,28,34,35,41,42,43,44,45,46,47,48].includes(i) || Math.random() > 0.6 ? 'bg-slate-900' : 'bg-white'}`} />
+                {cells.map((filled, i) => (
+                  <div key={i} className={`rounded-sm ${filled ? 'bg-slate-900' : 'bg-white'}`} />
                 ))}
               </div>
             </div>
           </div>
+          <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Scan code: {txnId}</p>
         </div>
         <div className="p-4">
           <button
@@ -49,7 +52,7 @@ function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
-            Confirm Checkout
+            Scan & Confirm Checkout
           </button>
         </div>
       </div>
@@ -79,7 +82,7 @@ export default function TransactionPage() {
   const handleConfirmCheckout = (txnId: string) => {
     setConfirmedCheckouts((prev) => new Set([...prev, txnId]));
     setQrModal(null);
-    showToast('Checkout confirmed! Item is now borrowed.', 'success');
+    showToast(`QR ${txnId.slice(-6).toUpperCase()} scanned. Checkout confirmed.`, 'success');
   };
 
   const statusBadge = (status: string, isOverdue: boolean) => {

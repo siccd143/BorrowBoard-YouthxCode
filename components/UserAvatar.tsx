@@ -10,7 +10,13 @@ type UserAvatarProps = {
 };
 
 export default function UserAvatar({ avatar, name, className, imageClassName }: UserAvatarProps) {
-  const isImage = avatar.startsWith("http") || avatar.startsWith("/");
+  const isImage = avatar.startsWith("http") || avatar.startsWith("/") || avatar.startsWith("data:image/");
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "BB";
 
   return (
     <div
@@ -23,10 +29,10 @@ export default function UserAvatar({ avatar, name, className, imageClassName }: 
         <img
           src={avatar}
           alt={`${name} avatar`}
-          className={cn("h-full w-full object-contain p-0.5", imageClassName)}
+          className={cn("h-full w-full object-cover", imageClassName)}
         />
       ) : (
-        avatar
+        <span className="text-xs font-extrabold tracking-wide">{initials}</span>
       )}
     </div>
   );
