@@ -6,7 +6,6 @@ import { useState } from "react";
 import {
   Calendar,
   ClipboardList,
-  Home,
   LayoutDashboard,
   LogIn,
   Menu,
@@ -23,7 +22,6 @@ import AnimatedShaderBackground from "@/components/ui/animated-shader-background
 import UserAvatar from "@/components/UserAvatar";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/borrow", label: "Borrow", icon: ShoppingBag },
   { href: "/request", label: "Request", icon: ClipboardList },
@@ -80,7 +78,7 @@ export default function Navigation() {
   const SidebarContent = ({ onNav }: { onNav?: () => void }) => (
     <>
       <div className="relative border-b border-white/10 px-4 py-5">
-        <Link href="/" onClick={onNav} className="flex items-center gap-2.5">
+        <Link href="/dashboard" onClick={onNav} className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-stone-950 shadow-lg shadow-amber-500/20 ring-1 ring-amber-100/20">
             <img src="/borrowboard-logo.png" alt="" className="h-full w-full object-cover" />
           </div>
@@ -135,7 +133,7 @@ export default function Navigation() {
         >
           <Menu className="h-5 w-5 text-stone-200" />
         </button>
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-stone-950 shadow-md shadow-black/20 ring-1 ring-amber-100/20">
             <img src="/borrowboard-logo.png" alt="" className="h-full w-full object-cover" />
           </div>

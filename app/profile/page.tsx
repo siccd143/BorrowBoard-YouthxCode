@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Check, MapPin, Save, UserRound } from 'lucide-react';
+import { Check, GraduationCap, IdCard, MapPin, Save, School, UserRound } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
 import UserAvatar from '@/components/UserAvatar';
 
@@ -19,12 +19,15 @@ const locations = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym'];
 export default function ProfilePage() {
   const { currentUser, updateCurrentUser } = useApp();
   const [name, setName] = useState(currentUser.name);
+  const [grade, setGrade] = useState(currentUser.grade || 10);
+  const [school, setSchool] = useState(currentUser.school || '');
+  const [studentId, setStudentId] = useState(currentUser.studentId || '');
   const [pickupLocation, setPickupLocation] = useState(currentUser.pickupLocation);
   const [avatar, setAvatar] = useState(currentUser.avatar);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateCurrentUser({ name: name.trim() || currentUser.name, pickupLocation, avatar });
+    updateCurrentUser({ name: name.trim() || currentUser.name, grade, school: school.trim(), studentId: studentId.trim(), pickupLocation, avatar });
   };
 
   return (
@@ -57,6 +60,24 @@ export default function ProfilePage() {
             <label className="block">
               <span className="text-xs font-bold uppercase tracking-wide text-stone-500">Display name</span>
               <input value={name} onChange={(event) => setName(event.target.value)} className="mt-2 w-full rounded-2xl border border-stone-950/10 bg-white px-4 py-3 text-sm font-semibold text-stone-950 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-200/40" />
+            </label>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-500"><GraduationCap className="h-3.5 w-3.5" /> Grade</span>
+                <select value={grade} onChange={(event) => setGrade(Number(event.target.value))} className="mt-2 w-full rounded-2xl border border-stone-950/10 bg-white px-4 py-3 text-sm font-semibold text-stone-950 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-200/40">
+                  {[6, 7, 8, 9, 10, 11, 12].map((value) => <option key={value} value={value}>Grade {value}</option>)}
+                </select>
+              </label>
+              <label className="block">
+                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-500"><IdCard className="h-3.5 w-3.5" /> Student ID</span>
+                <input value={studentId} onChange={(event) => setStudentId(event.target.value)} className="mt-2 w-full rounded-2xl border border-stone-950/10 bg-white px-4 py-3 text-sm font-semibold text-stone-950 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-200/40" placeholder="STU-10492" />
+              </label>
+            </div>
+
+            <label className="block">
+              <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-stone-500"><School className="h-3.5 w-3.5" /> School</span>
+              <input value={school} onChange={(event) => setSchool(event.target.value)} className="mt-2 w-full rounded-2xl border border-stone-950/10 bg-white px-4 py-3 text-sm font-semibold text-stone-950 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-200/40" placeholder="Westview High School" />
             </label>
 
             <label className="block">

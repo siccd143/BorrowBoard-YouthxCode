@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
 import { AvailabilityBlock, AvailabilityType, DayOfWeek } from '@/lib/types';
-import { Clock, MapPin, Plus, Trash2, Calendar } from 'lucide-react';
+import { Clock, MapPin, Plus, Trash2, Calendar, Sparkles, Zap } from 'lucide-react';
 
 const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -56,7 +56,7 @@ export default function SchedulePage() {
       type: form.type,
     };
     addAvailability(block);
-    showToast(`Availability added: ${form.day} ${form.startTime}–${form.endTime}`, 'success');
+    showToast(`Availability added: ${form.day} ${form.startTime}-${form.endTime}`, 'success');
     setShowForm(false);
   };
 
@@ -71,15 +71,43 @@ export default function SchedulePage() {
   }, {} as Record<DayOfWeek, AvailabilityBlock[]>);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-5">
+    <div className="mx-auto max-w-6xl space-y-6 p-5 sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl bg-stone-950 p-6 text-white shadow-2xl shadow-stone-950/20 sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_82%_0%,rgba(99,102,241,0.16),transparent_30%)]" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-100/20 bg-white/[0.08] px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-100">
+              <Sparkles className="h-3.5 w-3.5" />
+              Match engine input
+            </div>
+            <h1 className="max-w-3xl text-4xl font-extrabold tracking-normal sm:text-5xl">Set your real campus availability.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-300">BorrowBoard uses these windows to score matches, estimate handoff times, and keep requests realistic.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4">
+              <p className="text-2xl font-extrabold">{myAvailability.length}</p>
+              <p className="text-xs font-bold uppercase text-stone-400">Your blocks</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4">
+              <p className="text-2xl font-extrabold">{availability.filter((a) => a.day === 'Monday').length}</p>
+              <p className="text-xs font-bold uppercase text-stone-400">Monday windows</p>
+            </div>
+            <div className="col-span-2 rounded-2xl border border-white/10 bg-white/[0.08] p-4 sm:col-span-1">
+              <Zap className="mb-2 h-4 w-4 text-amber-200" />
+              <p className="text-xs font-bold uppercase text-stone-400">Live matching</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Schedule</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Set when you&apos;re free to lend or meet for pickups.</p>
+          <h2 className="text-xl font-extrabold text-slate-900">Weekly availability</h2>
+          <p className="text-slate-500 text-sm mt-0.5">Add lunch, free period, before-school, or after-school windows.</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+          className="flex items-center gap-2 rounded-xl bg-stone-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Add Block
@@ -88,8 +116,8 @@ export default function SchedulePage() {
 
       {/* Add form */}
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white rounded-2xl border border-blue-100 p-5 shadow-sm space-y-4">
-          <h2 className="font-semibold text-slate-900">Add Availability Block</h2>
+        <form onSubmit={handleAdd} className="rounded-3xl border border-stone-950/10 bg-white/80 p-5 shadow-sm space-y-4">
+          <h2 className="font-extrabold text-slate-900">Add availability block</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Day</label>
@@ -121,17 +149,17 @@ export default function SchedulePage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-colors cursor-pointer text-sm">Add Block</button>
+            <button type="submit" className="flex-1 bg-stone-950 hover:bg-amber-700 text-white font-semibold py-2.5 rounded-xl transition-colors cursor-pointer text-sm">Add Block</button>
             <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl transition-colors cursor-pointer text-sm">Cancel</button>
           </div>
         </form>
       )}
 
       {/* Weekly view */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+      <div className="bg-white/80 rounded-3xl border border-stone-950/10 p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-5">
           <Calendar className="w-5 h-5 text-blue-500" />
-          <h2 className="font-semibold text-slate-900">Weekly Availability — {currentUser.name}</h2>
+          <h2 className="font-semibold text-slate-900">Weekly Availability - {currentUser.name}</h2>
         </div>
         <div className="space-y-4">
           {DAYS.map((day) => {
@@ -148,7 +176,7 @@ export default function SchedulePage() {
                         <span className="text-xs font-semibold">{typeLabel[block.type] || block.type}</span>
                         <div className="flex items-center gap-1.5 text-xs opacity-80">
                           <Clock className="w-3 h-3" />
-                          {block.startTime}–{block.endTime}
+                          {block.startTime}-{block.endTime}
                         </div>
                         <div className="flex items-center gap-1.5 text-xs opacity-80">
                           <MapPin className="w-3 h-3" />
@@ -172,7 +200,7 @@ export default function SchedulePage() {
       </div>
 
       {/* Others availability */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+      <div className="bg-white/80 rounded-3xl border border-stone-950/10 p-5 shadow-sm">
         <h2 className="font-semibold text-slate-900 mb-4">Classmates&apos; Availability (Monday)</h2>
         <div className="space-y-3">
           {availability.filter((a) => a.userId !== currentUser.id && a.day === 'Monday').map((block) => (
@@ -184,7 +212,7 @@ export default function SchedulePage() {
               <div className={`text-xs px-2 py-0.5 rounded-full ${typeColor[block.type]?.split(' ').slice(0, 2).join(' ') || 'bg-slate-100 text-slate-600'}`}>
                 {typeLabel[block.type]}
               </div>
-              <span className="text-xs text-slate-500">{block.startTime}–{block.endTime}</span>
+              <span className="text-xs text-slate-500">{block.startTime}-{block.endTime}</span>
               <span className="text-xs text-slate-400 flex items-center gap-0.5 ml-auto shrink-0">
                 <MapPin className="w-3 h-3" />{block.location}
               </span>

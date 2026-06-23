@@ -22,6 +22,8 @@ export interface User {
   trustScore: number;
   credits: number;
   pickupLocation: string;
+  school?: string;
+  studentId?: string;
   avatar: string;
   itemsLent: number;
   itemsBorrowed: number;

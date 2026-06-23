@@ -1,4 +1,4 @@
-import { Item, BorrowRequest, MatchResult, User } from './types';
+import { AvailabilityBlock, Item, BorrowRequest, MatchResult, User } from './types';
 import { MOCK_USERS, MOCK_AVAILABILITY } from './mockData';
 
 function timeToMinutes(time: string): number {
@@ -37,7 +37,8 @@ function hasScheduleOverlap(
 export function computeMatchScore(
   item: Item,
   lender: User,
-  request: BorrowRequest
+  request: BorrowRequest,
+  availability: AvailabilityBlock[] = MOCK_AVAILABILITY
 ): { score: number; reasons: string[]; overlapStart: string; overlapEnd: string } {
   let score = 0;
   const reasons: string[] = [];
@@ -55,7 +56,7 @@ export function computeMatchScore(
   }
 
   // Schedule overlap: 25 points
-  const lenderAvailability = MOCK_AVAILABILITY.filter(
+  const lenderAvailability = availability.filter(
     (a) => a.userId === lender.id && a.day === request.day
   );
 
@@ -109,17 +110,22 @@ export function computeMatchScore(
   return { score: Math.min(score, 100), reasons, overlapStart, overlapEnd };
 }
 
-export function findMatches(request: BorrowRequest, items: Item[]): MatchResult[] {
+export function findMatches(
+  request: BorrowRequest,
+  items: Item[],
+  users: User[] = MOCK_USERS,
+  availability: AvailabilityBlock[] = MOCK_AVAILABILITY
+): MatchResult[] {
   const results: MatchResult[] = [];
 
   for (const item of items) {
     if (!item.isAvailable) continue;
     if (item.ownerId === request.requesterId) continue;
 
-    const lender = MOCK_USERS.find((u) => u.id === item.ownerId);
+    const lender = users.find((u) => u.id === item.ownerId);
     if (!lender) continue;
 
-    const { score, reasons, overlapStart, overlapEnd } = computeMatchScore(item, lender, request);
+    const { score, reasons, overlapStart, overlapEnd } = computeMatchScore(item, lender, request, availability);
 
     if (score > 0) {
       const overlapStartMins = timeToMinutes(overlapStart);

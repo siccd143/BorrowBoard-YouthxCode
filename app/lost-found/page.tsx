@@ -4,7 +4,7 @@ import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
 import { LostItem, FoundItem, ItemCategory } from '@/lib/types';
-import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle, Sparkles, Shield } from 'lucide-react';
 
 const CATEGORIES: Array<{ value: ItemCategory; label: string }> = [
   { value: 'calculator', label: 'Calculator' },
@@ -129,21 +129,35 @@ function LostFoundContent() {
   const TabButton = ({ id, label }: { id: typeof activeTab; label: string }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors cursor-pointer ${activeTab === id ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+      className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors cursor-pointer ${activeTab === id ? 'bg-stone-950 text-white' : 'text-stone-600 hover:bg-stone-100'}`}
     >
       {label}
     </button>
   );
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Lost & Found</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Report lost or found items. Matches are found automatically.</p>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6 p-5 sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl bg-stone-950 p-6 text-white shadow-2xl shadow-stone-950/20 sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_82%_0%,rgba(16,185,129,0.16),transparent_30%)]" />
+        <div className="relative grid gap-6 lg:grid-cols-[1.35fr_0.85fr] lg:items-end">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-100/20 bg-white/[0.08] px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-100">
+              <Sparkles className="h-3.5 w-3.5" />
+              Recovery desk
+            </div>
+            <h1 className="max-w-2xl text-4xl font-extrabold sm:text-5xl">Lost items get matched, not buried.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-300">Report a lost or found item, then BorrowBoard compares category, location, timing, and private verification details.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><p className="text-3xl font-black">{lostItems.filter((l) => l.status === 'active').length}</p><p className="text-xs font-bold uppercase text-stone-400">Lost</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><p className="text-3xl font-black">{foundItems.filter((f) => f.status === 'unclaimed').length}</p><p className="text-xs font-bold uppercase text-stone-400">Found</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><Shield className="mx-auto mb-2 h-5 w-5 text-amber-200" /><p className="text-xs font-bold uppercase text-stone-400">Verified</p></div>
+          </div>
+        </div>
+      </section>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl w-fit flex-wrap">
+      <div className="flex w-fit flex-wrap items-center gap-2 rounded-2xl border border-stone-950/10 bg-white/75 p-1 shadow-sm">
         <TabButton id="lost" label={`Lost Items (${lostItems.filter((l) => l.status === 'active').length})`} />
         <TabButton id="found" label={`Found Items (${foundItems.filter((f) => f.status === 'unclaimed').length})`} />
         <TabButton id="report-lost" label="Report Lost" />
@@ -152,15 +166,15 @@ function LostFoundContent() {
 
       {/* Possible Matches Banner */}
       {possibleMatches.length > 0 && (activeTab === 'lost' || activeTab === 'found') && (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-4 h-4 text-green-600" />
             <span className="text-sm font-bold text-green-800">{possibleMatches.length} Possible Match{possibleMatches.length !== 1 ? 'es' : ''} Found</span>
-            <span className="text-xs text-green-600 ml-auto">AI lost-item similarity coming soon</span>
+            <span className="text-xs text-green-600 ml-auto">Similarity match active</span>
           </div>
           <div className="space-y-3">
             {possibleMatches.map(({ lost, found, score }) => (
-              <div key={`${lost.id}-${found.id}`} className="bg-white rounded-xl border border-green-100 p-4">
+              <div key={`${lost.id}-${found.id}`} className="rounded-2xl border border-green-100 bg-white p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-bold text-green-700 flex items-center gap-1">
                     <CheckCircle className="w-3.5 h-3.5" />
@@ -231,14 +245,14 @@ function LostFoundContent() {
       {activeTab === 'lost' && (
         <div className="space-y-3">
           {lostItems.filter((l) => l.status === 'active').length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-100 p-10 text-center">
+            <div className="bg-white/85 rounded-3xl border border-stone-100 p-10 text-center">
               <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="font-semibold text-slate-600 mb-1">No lost items reported</p>
-              <button onClick={() => setActiveTab('report-lost')} className="text-sm text-blue-600 font-medium hover:underline cursor-pointer">Report a lost item</button>
+              <button onClick={() => setActiveTab('report-lost')} className="text-sm text-amber-700 font-bold hover:underline cursor-pointer">Report a lost item</button>
             </div>
           ) : (
             lostItems.filter((l) => l.status === 'active').map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+              <div key={item.id} className="bg-white/85 rounded-3xl border border-stone-100 p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
                     <h3 className="font-semibold text-slate-900">{item.itemName}</h3>
@@ -261,14 +275,14 @@ function LostFoundContent() {
       {activeTab === 'found' && (
         <div className="space-y-3">
           {foundItems.filter((f) => f.status === 'unclaimed').length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-100 p-10 text-center">
+            <div className="bg-white/85 rounded-3xl border border-stone-100 p-10 text-center">
               <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="font-semibold text-slate-600 mb-1">No found items reported</p>
-              <button onClick={() => setActiveTab('report-found')} className="text-sm text-blue-600 font-medium hover:underline cursor-pointer">Report a found item</button>
+              <button onClick={() => setActiveTab('report-found')} className="text-sm text-amber-700 font-bold hover:underline cursor-pointer">Report a found item</button>
             </div>
           ) : (
             foundItems.filter((f) => f.status === 'unclaimed').map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+              <div key={item.id} className="bg-white/85 rounded-3xl border border-stone-100 p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
                     <h3 className="font-semibold text-slate-900">{item.itemName}</h3>
@@ -289,7 +303,7 @@ function LostFoundContent() {
 
       {/* Report Lost Form */}
       {activeTab === 'report-lost' && (
-        <form onSubmit={handleReportLost} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
+        <form onSubmit={handleReportLost} className="bg-white/85 rounded-3xl border border-stone-100 p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <AlertCircle className="w-5 h-5 text-red-500" />
             <h2 className="font-bold text-slate-900">Report a Lost Item</h2>
@@ -324,9 +338,9 @@ function LostFoundContent() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Unique Identifying Detail (private — used for verification)</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Unique Identifying Detail (private - used for verification)</label>
             <input type="text" value={lostForm.uniqueDetail} onChange={(e) => setLostForm({ ...lostForm, uniqueDetail: e.target.value })} placeholder="e.g. Has a blue sticker on the back, initials scratched on it" className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <p className="text-xs text-slate-400 mt-1">This detail won&apos;t be shown publicly — used to verify your ownership.</p>
+            <p className="text-xs text-slate-400 mt-1">This detail won&apos;t be shown publicly - used to verify your ownership.</p>
           </div>
           <button type="submit" className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer">Report Lost Item</button>
         </form>
@@ -334,7 +348,7 @@ function LostFoundContent() {
 
       {/* Report Found Form */}
       {activeTab === 'report-found' && (
-        <form onSubmit={handleReportFound} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
+        <form onSubmit={handleReportFound} className="bg-white/85 rounded-3xl border border-stone-100 p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <Search className="w-5 h-5 text-green-500" />
             <h2 className="font-bold text-slate-900">Report a Found Item</h2>
