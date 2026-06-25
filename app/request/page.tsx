@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
 import { findMatches } from '@/lib/matching';
-import { BorrowRequest, DAYS, DayOfWeek, ItemCategory, LOCATIONS, MatchResult, UrgencyLevel } from '@/lib/types';
+import { BorrowRequest, DAYS, DayOfWeek, ItemCategory, MatchResult, UrgencyLevel } from '@/lib/types';
 import {
   ArrowLeft,
   CheckCircle,
@@ -76,7 +76,7 @@ function MatchHero() {
 }
 
 function RequestFormContent() {
-  const { items, users, availability, currentUser, addRequest, addTransaction, showToast } = useApp();
+  const { items, users, availability, currentUser, locations, addRequest, addTransaction, showToast } = useApp();
   const searchParams = useSearchParams();
   const prefillCategory = (searchParams.get('category') as ItemCategory) || 'calculator';
   const prefillName = searchParams.get('name') || '';
@@ -319,7 +319,7 @@ function RequestFormContent() {
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-slate-700">Pickup Location</label>
             <select value={form.preferredLocation} onChange={(e) => setForm({ ...form, preferredLocation: e.target.value })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-              {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+              {locations.map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
         </div>

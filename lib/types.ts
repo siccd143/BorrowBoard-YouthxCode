@@ -21,7 +21,6 @@ export const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 
 export const LOCATIONS = [
   'Library',
   'Cafeteria',
-  'Room 210',
   'STEM Lab',
   'Gym',
   'Hallway',

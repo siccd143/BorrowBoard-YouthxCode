@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import { DAYS, DayOfWeek, Item, ItemCategory, ItemCondition, LOCATIONS } from '@/lib/types';
+import { DAYS, DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
 import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
@@ -15,7 +15,7 @@ const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> =
 ];
 
 export default function ListItemPage() {
-  const { addItem, currentUser, showToast } = useApp();
+  const { addItem, currentUser, locations, showToast } = useApp();
   const [submitted, setSubmitted] = useState(false);
   const [photoStatus, setPhotoStatus] = useState('Upload item photo');
   const [form, setForm] = useState({
@@ -219,7 +219,7 @@ export default function ListItemPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div><label className="mb-1.5 block text-sm font-semibold text-slate-700">Start Time</label><input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" /></div>
           <div><label className="mb-1.5 block text-sm font-semibold text-slate-700">End Time</label><input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" /></div>
-          <div><label className="mb-1.5 block text-sm font-semibold text-slate-700">Pickup Location</label><select value={form.pickupLocation} onChange={(e) => setForm({ ...form, pickupLocation: e.target.value })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">{LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}</select></div>
+          <div><label className="mb-1.5 block text-sm font-semibold text-slate-700">Pickup Location</label><select value={form.pickupLocation} onChange={(e) => setForm({ ...form, pickupLocation: e.target.value })} className="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">{locations.map((l) => <option key={l} value={l}>{l}</option>)}</select></div>
         </div>
 
         <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 p-4">

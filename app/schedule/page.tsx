@@ -2,8 +2,8 @@
 
 import { Fragment, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import { AVAILABILITY_TYPES, AvailabilityBlock, AvailabilityType, DAYS, DayOfWeek, LOCATIONS } from '@/lib/types';
-import { Calendar, Hand, MapPin, Sparkles, Trash2, Zap } from 'lucide-react';
+import { AVAILABILITY_TYPES, AvailabilityBlock, AvailabilityType, DAYS, DayOfWeek } from '@/lib/types';
+import { Calendar, Hand, MapPin, Plus, Sparkles, Trash2, Zap } from 'lucide-react';
 
 // Weekly grid: 7:30 AM -> 4:00 PM in 30-minute slots. Dragging across a day's
 // column paints availability directly, so there are no block forms or schedule
@@ -42,8 +42,9 @@ const typeLabel: Record<AvailabilityType, string> = {
   'before-school': 'Before School',
 };
 
-// Each location gets its own colour so a painted week reads at a glance. Indexed
-// against the shared LOCATIONS list and cycled if a school defines more spots.
+// Each location gets its own colour so a painted week reads at a glance. The
+// colour is picked by hashing the name (see locColor), so it stays stable for
+// any spot — including ones students add themselves.
 const LOCATION_CELL = [
   'border-amber-300 bg-gradient-to-br from-amber-300 to-amber-400 shadow-sm shadow-amber-500/20',
   'border-sky-300 bg-gradient-to-br from-sky-300 to-sky-400 shadow-sm shadow-sky-500/20',
@@ -68,9 +69,11 @@ const LOCATION_DOT = [
   'bg-cyan-400',
   'bg-orange-400',
 ];
+// Color the locations
 const locColor = (location: string) => {
-  const i = LOCATIONS.indexOf(location);
-  return (i < 0 ? 0 : i) % LOCATION_CELL.length;
+  let hash = 0;
+  for (let i = 0; i < location.length; i++) hash = (hash * 31 + location.charCodeAt(i)) >>> 0;
+  return hash % LOCATION_CELL.length;
 };
 
 interface SlotMeta {
@@ -112,11 +115,21 @@ function runsForDay(
 }
 
 export default function SchedulePage() {
-  const { availability, addAvailability, removeAvailability, currentUser, showToast } = useApp();
+  const { availability, addAvailability, removeAvailability, currentUser, locations, showToast } = useApp();
 
   const userBlocks = useMemo(
     () => availability.filter((a) => a.userId === currentUser.id),
     [availability, currentUser.id],
+  );
+
+  // New locations are paintable
+  const [draftLocations, setDraftLocations] = useState<string[]>([]);
+  const [newLocation, setNewLocation] = useState('');
+
+  // The full list
+  const allLocations = useMemo(
+    () => [...new Set([...locations, ...draftLocations])],
+    [locations, draftLocations],
   );
 
   const [slots, setSlots] = useState<Map<string, SlotMeta>>(() => blocksToSlots(userBlocks));
@@ -124,9 +137,7 @@ export default function SchedulePage() {
 
   // The location/type the next painted slots get. Students pick these instead of
   // the app guessing from the clock or forcing their single profile pickup spot.
-  const [activeLocation, setActiveLocation] = useState<string>(
-    () => (LOCATIONS.includes(currentUser.pickupLocation) ? currentUser.pickupLocation : LOCATIONS[0]),
-  );
+  const [activeLocation, setActiveLocation] = useState<string>(currentUser.pickupLocation || 'Library');
   const [activeType, setActiveType] = useState<AvailabilityType>('free-period');
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -232,6 +243,15 @@ export default function SchedulePage() {
     showToast('Cleared your weekly availability.', 'info');
   };
 
+  const addLocation = () => {
+    const name = newLocation.trim();
+    if (!name) return;
+    const match = allLocations.find((location) => location.toLowerCase() === name.toLowerCase());
+    if (!match) setDraftLocations((prev) => [...prev, name]);
+    setActiveLocation(match ?? name);
+    setNewLocation('');
+  };
+
   const totalHours = slots.size * (SLOT_MIN / 60);
   const daysCovered = DAYS.filter((day) => [...slots.keys()].some((key) => key.startsWith(`${day}|`))).length;
   const usedLocations = useMemo(
@@ -279,7 +299,7 @@ export default function SchedulePage() {
               Pickup location
             </p>
             <div className="flex flex-wrap gap-2">
-              {LOCATIONS.map((location) => {
+              {allLocations.map((location) => {
                 const selected = location === activeLocation;
                 return (
                   <button
@@ -297,6 +317,29 @@ export default function SchedulePage() {
                   </button>
                 );
               })}
+              <div className="flex items-center gap-1.5 rounded-xl border border-dashed border-stone-300 bg-white px-2 py-1">
+                <input
+                  value={newLocation}
+                  onChange={(event) => setNewLocation(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      addLocation();
+                    }
+                  }}
+                  placeholder="Add a spot…"
+                  className="w-28 bg-transparent text-sm font-semibold text-stone-700 placeholder:font-normal placeholder:text-stone-400 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={addLocation}
+                  disabled={!newLocation.trim()}
+                  aria-label="Add location"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-stone-950 text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
           <div>

@@ -3,7 +3,7 @@
 import { ChangeEvent, useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
-import { LostItem, FoundItem, ItemCategory, LOCATIONS } from '@/lib/types';
+import { LostItem, FoundItem, ItemCategory } from '@/lib/types';
 import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle, Sparkles, Shield } from 'lucide-react';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
 import { classifyImageForForm } from '@/lib/clientImageModel';
@@ -21,7 +21,7 @@ function matchScore(lost: LostItem, found: FoundItem): number {
 }
 
 function LostFoundContent() {
-  const { lostItems, foundItems, addLostItem, addFoundItem, currentUser, showToast } = useApp();
+  const { lostItems, foundItems, addLostItem, addFoundItem, currentUser, locations, showToast } = useApp();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'found' ? 'found' : 'lost';
   const [activeTab, setActiveTab] = useState<'lost' | 'found' | 'report-lost' | 'report-found'>(initialTab);
@@ -351,7 +351,7 @@ function LostFoundContent() {
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Last Seen Location *</label>
               <select value={lostForm.lastSeenLocation} onChange={(e) => setLostForm({ ...lostForm, lastSeenLocation: e.target.value })} required className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Select location...</option>
-                {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                {locations.map((l) => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>
             <div>
@@ -413,7 +413,7 @@ function LostFoundContent() {
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Where Found *</label>
               <select value={foundForm.locationFound} onChange={(e) => setFoundForm({ ...foundForm, locationFound: e.target.value })} required className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Select location...</option>
-                {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                {locations.map((l) => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>
             <div>

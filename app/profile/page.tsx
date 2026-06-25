@@ -4,7 +4,6 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, GraduationCap, IdCard, LogOut, MapPin, Save, School, UserRound } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
-import { LOCATIONS } from '@/lib/types';
 import UserAvatar from '@/components/UserAvatar';
 import { createClient } from '@/utils/supabase/client';
 
@@ -19,7 +18,7 @@ const avatarOptions = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, updateCurrentUser } = useApp();
+  const { currentUser, updateCurrentUser, locations } = useApp();
   const [name, setName] = useState(currentUser.name);
   const [grade, setGrade] = useState(currentUser.grade || 10);
   const [school, setSchool] = useState(currentUser.school || '');
@@ -112,7 +111,7 @@ export default function ProfilePage() {
               <div className="relative mt-2">
                 <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <select value={pickupLocation} onChange={(event) => setPickupLocation(event.target.value)} className="w-full appearance-none rounded-2xl border border-stone-950/10 bg-white py-3 pl-11 pr-4 text-sm font-semibold text-stone-950 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-200/40">
-                  {LOCATIONS.map((location) => <option key={location}>{location}</option>)}
+                  {locations.map((location) => <option key={location}>{location}</option>)}
                 </select>
               </div>
             </label>

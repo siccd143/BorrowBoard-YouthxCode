@@ -460,6 +460,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast('Profile updated', 'success');
   }, [currentUser.id, showToast, supabase]);
 
+  // Campus location list
+  const locations = useMemo(() => {
+    const fromData = [
+      ...availability.map((a) => a.location),
+      ...items.map((i) => i.pickupLocation),
+      currentUser.pickupLocation,
+    ].filter((value): value is string => Boolean(value && value.trim()));
+    return [...new Set([...LOCATIONS, ...fromData])];
+  }, [availability, items, currentUser.pickupLocation]);
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -471,6 +481,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       foundItems,
       availability,
       creditHistory,
+      locations,
       toasts,
       addItem,
       addRequest,
