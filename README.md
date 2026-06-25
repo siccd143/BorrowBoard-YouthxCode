@@ -50,12 +50,6 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 ```
 
-Install the local image model runtime:
-
-```bash
-npm run model:install
-```
-
 Start the app:
 
 ```bash
@@ -70,16 +64,24 @@ http://localhost:3000
 
 ## Image Classifier
 
-Locally, `/api/classify-image` can use the included model file through:
+`/api/classify-image` runs our YOLO model directly in the Node.js runtime via
+ONNX Runtime — the same code path locally and on Vercel, with **no Python
+required** in production:
 
 ```text
-models/yolo26n.pt
-scripts/classify_image.py
+models/yolo26n.onnx   # exported model weights, shipped into the function
+lib/classify-onnx.ts  # sharp preprocessing + onnxruntime-node inference
 ```
 
-For Vercel production, use hosted model inference or a separate Python model API instead of running PyTorch directly inside the Next.js route.
+Re-export from training with `model.export(format="onnx")` and drop the result
+in at `models/yolo26n.onnx`. The class order in `lib/classify-onnx.ts`
+(`CLASS_NAMES`) must match `models/metadata.yaml`.
 
-Optional Roboflow environment variables:
+`models/yolo26n.pt` + `scripts/classify_image.py` remain only for local
+training/experiments and are no longer used by the API route.
+
+Optional Roboflow fallback environment variables (used only if the ONNX model
+fails to load):
 
 ```bash
 npx vercel env add ROBOFLOW_API_KEY production
