@@ -8,6 +8,7 @@ import {
   ChevronRight, Package, Star
 } from 'lucide-react';
 import { CATEGORY_FILTER_OPTIONS, categoryConfig } from '@/lib/categories';
+import { LOCATIONS } from '@/lib/types';
 
 const conditionStyles: Record<string, string> = {
   excellent: 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -33,7 +34,7 @@ const itemImages: Record<string, string> = {
   other: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=900&q=80',
 };
 
-const LOCATIONS = ['All', 'Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym'];
+const LOCATION_FILTERS = ['All', ...LOCATIONS];
 export default function BorrowPage() {
   const { items, currentUser } = useApp();
   const [search, setSearch] = useState('');
@@ -113,7 +114,7 @@ export default function BorrowPage() {
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block uppercase tracking-wide">Location</label>
             <select value={location} onChange={(e) => setLocation(e.target.value)} className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-              {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+              {LOCATION_FILTERS.map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
           <div>

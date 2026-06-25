@@ -3,12 +3,10 @@
 import { ChangeEvent, useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
-import { LostItem, FoundItem, ItemCategory } from '@/lib/types';
+import { LostItem, FoundItem, ItemCategory, LOCATIONS } from '@/lib/types';
 import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle, Sparkles, Shield } from 'lucide-react';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
 import { classifyImageForForm } from '@/lib/clientImageModel';
-
-const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office', 'Front Entrance', 'Science Room', 'Math Room'];
 
 function matchScore(lost: LostItem, found: FoundItem): number {
   let score = 0;

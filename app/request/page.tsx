@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
 import { findMatches } from '@/lib/matching';
-import { BorrowRequest, DAYS, DayOfWeek, ItemCategory, MatchResult, UrgencyLevel } from '@/lib/types';
+import { BorrowRequest, DAYS, DayOfWeek, ItemCategory, LOCATIONS, MatchResult, UrgencyLevel } from '@/lib/types';
 import {
   ArrowLeft,
   CheckCircle,
@@ -19,8 +19,7 @@ import Link from 'next/link';
 import { CATEGORY_OPTIONS, categoryConfig, inferItemCategory } from '@/lib/categories';
 import { getQrCells } from '@/lib/qrPattern';
 
-const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office'];
-const PERIODS = ['1st Period', '2nd Period', '3rd Period', '4th Period', '5th Period', 'Lunch A', 'Lunch B', '6th Period', '7th Period', 'After School'];
+const PERIODS =['1st Period', '2nd Period', '3rd Period', '4th Period', '5th Period', 'Lunch A', 'Lunch B', '6th Period', '7th Period', 'After School'];
 
 function ScoreBar({ score }: { score: number }) {
   const color = score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-amber-500' : 'bg-stone-500';

@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, BadgeCheck, CalendarClock, GraduationCap, IdCard, School, UserRound } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
+import { LOCATIONS } from '@/lib/types';
 
 const grades = [6, 7, 8, 9, 10, 11, 12];
 
@@ -76,7 +77,7 @@ export default function OnboardingPage() {
             <label className="block">
               <span className="text-xs font-bold uppercase tracking-wide text-stone-300">Default pickup spot</span>
               <select value={pickupLocation} onChange={(event) => setPickupLocation(event.target.value)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-2.5 text-sm font-semibold text-white outline-none transition focus:border-amber-300 focus:ring-4 focus:ring-amber-200/15">
-                {['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Main Office'].map((location) => <option key={location}>{location}</option>)}
+                {LOCATIONS.map((location) => <option key={location}>{location}</option>)}
               </select>
             </label>
 

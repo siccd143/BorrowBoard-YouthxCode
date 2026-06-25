@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import { DAYS, DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
+import { DAYS, DayOfWeek, Item, ItemCategory, ItemCondition, LOCATIONS } from '@/lib/types';
 import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
@@ -13,8 +13,6 @@ const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> =
   { value: 'good', label: 'Good', desc: 'Minor wear, works perfectly' },
   { value: 'fair', label: 'Fair', desc: 'Visible wear, still functional' },
 ];
-
-const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Main Office', 'Front Entrance'];
 
 export default function ListItemPage() {
   const { addItem, currentUser, showToast } = useApp();

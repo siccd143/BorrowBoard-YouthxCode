@@ -2,12 +2,13 @@
 
 import { Fragment, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import { AvailabilityBlock, AvailabilityType, DAYS, DayOfWeek } from '@/lib/types';
+import { AVAILABILITY_TYPES, AvailabilityBlock, AvailabilityType, DAYS, DayOfWeek, LOCATIONS } from '@/lib/types';
 import { Calendar, Hand, MapPin, Sparkles, Trash2, Zap } from 'lucide-react';
 
 // Weekly grid: 7:30 AM -> 4:00 PM in 30-minute slots. Dragging across a day's
 // column paints availability directly, so there are no block forms or schedule
-// files to parse — a contiguous run of painted slots becomes one block.
+// files to parse — a contiguous run of painted slots with the same location and
+// type becomes one block.
 const START_MIN = 7 * 60 + 30;
 const SLOT_MIN = 30;
 const SLOT_COUNT = 17;
@@ -41,36 +42,71 @@ const typeLabel: Record<AvailabilityType, string> = {
   'before-school': 'Before School',
 };
 
-// A painted run only knows its time of day; label it automatically so the
-// classmate view stays readable without asking students to pick a type.
-function inferType(startMin: number): AvailabilityType {
-  if (startMin < 8 * 60) return 'before-school';
-  if (startMin >= 15 * 60) return 'after-school';
-  if (startMin >= 11 * 60 && startMin < 13 * 60 + 30) return 'lunch';
-  return 'free-period';
+// Each location gets its own colour so a painted week reads at a glance. Indexed
+// against the shared LOCATIONS list and cycled if a school defines more spots.
+const LOCATION_CELL = [
+  'border-amber-300 bg-gradient-to-br from-amber-300 to-amber-400 shadow-sm shadow-amber-500/20',
+  'border-sky-300 bg-gradient-to-br from-sky-300 to-sky-400 shadow-sm shadow-sky-500/20',
+  'border-emerald-300 bg-gradient-to-br from-emerald-300 to-emerald-400 shadow-sm shadow-emerald-500/20',
+  'border-violet-300 bg-gradient-to-br from-violet-300 to-violet-400 shadow-sm shadow-violet-500/20',
+  'border-rose-300 bg-gradient-to-br from-rose-300 to-rose-400 shadow-sm shadow-rose-500/20',
+  'border-teal-300 bg-gradient-to-br from-teal-300 to-teal-400 shadow-sm shadow-teal-500/20',
+  'border-fuchsia-300 bg-gradient-to-br from-fuchsia-300 to-fuchsia-400 shadow-sm shadow-fuchsia-500/20',
+  'border-lime-300 bg-gradient-to-br from-lime-300 to-lime-400 shadow-sm shadow-lime-500/20',
+  'border-cyan-300 bg-gradient-to-br from-cyan-300 to-cyan-400 shadow-sm shadow-cyan-500/20',
+  'border-orange-300 bg-gradient-to-br from-orange-300 to-orange-400 shadow-sm shadow-orange-500/20',
+];
+const LOCATION_DOT = [
+  'bg-amber-400',
+  'bg-sky-400',
+  'bg-emerald-400',
+  'bg-violet-400',
+  'bg-rose-400',
+  'bg-teal-400',
+  'bg-fuchsia-400',
+  'bg-lime-400',
+  'bg-cyan-400',
+  'bg-orange-400',
+];
+const locColor = (location: string) => {
+  const i = LOCATIONS.indexOf(location);
+  return (i < 0 ? 0 : i) % LOCATION_CELL.length;
+};
+
+interface SlotMeta {
+  location: string;
+  type: AvailabilityType;
 }
 
-function blocksToSlots(blocks: AvailabilityBlock[]): Set<string> {
-  const set = new Set<string>();
+function blocksToSlots(blocks: AvailabilityBlock[]): Map<string, SlotMeta> {
+  const map = new Map<string, SlotMeta>();
   for (const block of blocks) {
     const from = Math.max(0, Math.round((timeToMin(block.startTime) - START_MIN) / SLOT_MIN));
     const to = Math.min(SLOT_COUNT, Math.round((timeToMin(block.endTime) - START_MIN) / SLOT_MIN));
-    for (let i = from; i < to; i++) set.add(slotKey(block.day, i));
+    for (let i = from; i < to; i++) map.set(slotKey(block.day, i), { location: block.location, type: block.type });
   }
-  return set;
+  return map;
 }
 
-function runsForDay(day: DayOfWeek, slots: Set<string>): Array<{ start: number; end: number }> {
-  const indices = [...slots]
-    .filter((key) => key.startsWith(`${day}|`))
-    .map((key) => Number(key.split('|')[1]))
-    .sort((a, b) => a - b);
+// A run breaks when slots stop being contiguous OR when the location/type
+// changes, so two back-to-back blocks at different spots stay separate.
+function runsForDay(
+  day: DayOfWeek,
+  slots: Map<string, SlotMeta>,
+): Array<{ start: number; end: number; location: string; type: AvailabilityType }> {
+  const cells = [...slots.entries()]
+    .filter(([key]) => key.startsWith(`${day}|`))
+    .map(([key, meta]) => ({ index: Number(key.split('|')[1]), ...meta }))
+    .sort((a, b) => a.index - b.index);
 
-  const runs: Array<{ start: number; end: number }> = [];
-  for (const index of indices) {
+  const runs: Array<{ start: number; end: number; location: string; type: AvailabilityType }> = [];
+  for (const cell of cells) {
     const last = runs[runs.length - 1];
-    if (last && index === last.end) last.end = index + 1;
-    else runs.push({ start: index, end: index + 1 });
+    if (last && cell.index === last.end && last.location === cell.location && last.type === cell.type) {
+      last.end = cell.index + 1;
+    } else {
+      runs.push({ start: cell.index, end: cell.index + 1, location: cell.location, type: cell.type });
+    }
   }
   return runs;
 }
@@ -83,8 +119,15 @@ export default function SchedulePage() {
     [availability, currentUser.id],
   );
 
-  const [slots, setSlots] = useState<Set<string>>(() => blocksToSlots(userBlocks));
+  const [slots, setSlots] = useState<Map<string, SlotMeta>>(() => blocksToSlots(userBlocks));
   const [dragging, setDragging] = useState(false);
+
+  // The location/type the next painted slots get. Students pick these instead of
+  // the app guessing from the clock or forcing their single profile pickup spot.
+  const [activeLocation, setActiveLocation] = useState<string>(
+    () => (LOCATIONS.includes(currentUser.pickupLocation) ? currentUser.pickupLocation : LOCATIONS[0]),
+  );
+  const [activeType, setActiveType] = useState<AvailabilityType>('free-period');
 
   const gridRef = useRef<HTMLDivElement>(null);
   const slotsRef = useRef(slots);
@@ -92,7 +135,14 @@ export default function SchedulePage() {
   const dragDay = useRef<DayOfWeek | null>(null);
   const dragMode = useRef<'add' | 'remove'>('add');
   const dragAnchor = useRef(0);
-  const dragBase = useRef<Set<string>>(new Set());
+  const dragBase = useRef<Map<string, SlotMeta>>(new Map());
+
+  // Keep the active selection in refs so the pointer handlers paint with the
+  // latest choice without re-binding mid-drag.
+  const activeLocationRef = useRef(activeLocation);
+  const activeTypeRef = useRef(activeType);
+  activeLocationRef.current = activeLocation;
+  activeTypeRef.current = activeType;
 
   // Mirror context into the grid unless the user is mid-drag (which would clobber
   // the in-progress selection). Async Supabase loads land here too.
@@ -103,17 +153,17 @@ export default function SchedulePage() {
     setSlots(next);
   }, [userBlocks]);
 
-  const applySlots = (next: Set<string>) => {
+  const applySlots = (next: Map<string, SlotMeta>) => {
     slotsRef.current = next;
     setSlots(next);
   };
 
   const paint = (day: DayOfWeek, index: number) => {
     const [lo, hi] = dragAnchor.current <= index ? [dragAnchor.current, index] : [index, dragAnchor.current];
-    const next = new Set(dragBase.current);
+    const next = new Map(dragBase.current);
     for (let i = lo; i <= hi; i++) {
       const key = slotKey(day, i);
-      if (dragMode.current === 'add') next.add(key);
+      if (dragMode.current === 'add') next.set(key, { location: activeLocationRef.current, type: activeTypeRef.current });
       else next.delete(key);
     }
     applySlots(next);
@@ -133,8 +183,12 @@ export default function SchedulePage() {
     setDragging(true);
     dragDay.current = day;
     dragAnchor.current = index;
-    dragBase.current = new Set(slotsRef.current);
-    dragMode.current = slotsRef.current.has(slotKey(day, index)) ? 'remove' : 'add';
+    dragBase.current = new Map(slotsRef.current);
+    // Clicking a slot that already holds the active location + type clears it;
+    // clicking anything else (empty, or a different location) repaints it.
+    const existing = slotsRef.current.get(slotKey(day, index));
+    dragMode.current =
+      existing && existing.location === activeLocation && existing.type === activeType ? 'remove' : 'add';
     paint(day, index);
   };
 
@@ -148,15 +202,14 @@ export default function SchedulePage() {
   const commitDay = (day: DayOfWeek) => {
     userBlocks.filter((block) => block.day === day).forEach((block) => removeAvailability(block.id));
     runsForDay(day, slotsRef.current).forEach((run) => {
-      const start = slotStart(run.start);
       addAvailability({
         id: `av-${Date.now()}-${day}-${run.start}`,
         userId: currentUser.id,
         day,
-        startTime: minToTime(start),
+        startTime: minToTime(slotStart(run.start)),
         endTime: minToTime(slotStart(run.end)),
-        location: currentUser.pickupLocation,
-        type: inferType(start),
+        location: run.location,
+        type: run.type,
       });
     });
   };
@@ -175,12 +228,16 @@ export default function SchedulePage() {
 
   const clearWeek = () => {
     userBlocks.forEach((block) => removeAvailability(block.id));
-    applySlots(new Set());
+    applySlots(new Map());
     showToast('Cleared your weekly availability.', 'info');
   };
 
   const totalHours = slots.size * (SLOT_MIN / 60);
-  const daysCovered = DAYS.filter((day) => [...slots].some((key) => key.startsWith(`${day}|`))).length;
+  const daysCovered = DAYS.filter((day) => [...slots.keys()].some((key) => key.startsWith(`${day}|`))).length;
+  const usedLocations = useMemo(
+    () => [...new Set([...slots.values()].map((meta) => meta.location))].sort(),
+    [slots],
+  );
   const classmateBlocks = availability.filter((a) => a.userId !== currentUser.id && a.day === 'Monday');
 
   return (
@@ -194,7 +251,7 @@ export default function SchedulePage() {
               Match engine input
             </div>
             <h1 className="max-w-3xl text-4xl font-extrabold tracking-normal sm:text-5xl">Drag to set your campus availability.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-300">Paint the times you&apos;re free across the week. BorrowBoard turns each block into match input — estimating handoff times and keeping requests realistic.</p>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-300">Pick where you&apos;ll be, then paint the times you&apos;re free across the week. BorrowBoard turns each block into match input — estimating handoff times and keeping requests realistic.</p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4">
@@ -213,12 +270,66 @@ export default function SchedulePage() {
         </div>
       </section>
 
+      {/* Location + period picker — what each painted block gets tagged with */}
+      <div className="rounded-3xl border border-stone-950/10 bg-white/80 p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
+          <div className="flex-1">
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500">
+              <MapPin className="h-3.5 w-3.5" />
+              Pickup location
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {LOCATIONS.map((location) => {
+                const selected = location === activeLocation;
+                return (
+                  <button
+                    key={location}
+                    type="button"
+                    onClick={() => setActiveLocation(location)}
+                    className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-sm font-semibold transition-colors ${
+                      selected
+                        ? 'border-stone-950 bg-stone-950 text-white'
+                        : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    <span className={`h-2.5 w-2.5 rounded-full ${LOCATION_DOT[locColor(location)]}`} />
+                    {location}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Period</p>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABILITY_TYPES.map((type) => {
+                const selected = type === activeType;
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setActiveType(type)}
+                    className={`rounded-xl border px-3 py-1.5 text-sm font-semibold transition-colors ${
+                      selected
+                        ? 'border-stone-950 bg-stone-950 text-white'
+                        : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    {typeLabel[type]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900">Weekly availability</h2>
           <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">
             <Hand className="h-3.5 w-3.5" />
-            Click and drag down a day to mark free time. Drag over filled slots to clear them.
+            Click and drag down a day to mark free time at the selected location. Drag over matching slots to clear them.
           </p>
         </div>
         <button
@@ -255,16 +366,17 @@ export default function SchedulePage() {
                 {index % 2 === 0 ? formatClock(slotStart(index)) : ''}
               </div>
               {DAYS.map((day) => {
-                const active = slots.has(slotKey(day, index));
+                const meta = slots.get(slotKey(day, index));
                 return (
                   <div
                     key={day}
                     data-day={day}
                     data-index={index}
+                    title={meta ? `${meta.location} · ${typeLabel[meta.type]}` : undefined}
                     onPointerDown={(event) => handlePointerDown(event, day, index)}
                     className={`h-6 touch-none rounded-[5px] border transition-colors ${
-                      active
-                        ? 'border-amber-300 bg-gradient-to-br from-amber-300 to-amber-400 shadow-sm shadow-amber-500/20'
+                      meta
+                        ? LOCATION_CELL[locColor(meta.location)]
                         : 'border-stone-950/[0.06] bg-stone-50 hover:bg-amber-100/60'
                     }`}
                   />
@@ -273,6 +385,18 @@ export default function SchedulePage() {
             </Fragment>
           ))}
         </div>
+
+        {usedLocations.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-stone-950/[0.06] pt-3 text-xs text-slate-500">
+            <span className="font-bold uppercase tracking-wide">Locations in use</span>
+            {usedLocations.map((location) => (
+              <span key={location} className="flex items-center gap-1.5">
+                <span className={`h-2.5 w-2.5 rounded-full ${LOCATION_DOT[locColor(location)]}`} />
+                {location}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Others availability */}

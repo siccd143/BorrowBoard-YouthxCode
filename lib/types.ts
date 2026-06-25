@@ -17,6 +17,21 @@ export type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Frida
 
 export const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
+// Master location list
+export const LOCATIONS = [
+  'Library',
+  'Cafeteria',
+  'Room 210',
+  'STEM Lab',
+  'Gym',
+  'Hallway',
+  'Main Office',
+  'Front Entrance',
+  'Science Room',
+  'Math Room',
+];
+export const AVAILABILITY_TYPES: AvailabilityType[] = ['before-school', 'free-period', 'lunch', 'after-school'];
+
 export interface User {
   id: string;
   name: string;

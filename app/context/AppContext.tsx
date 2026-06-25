@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { User, Item, BorrowRequest, Transaction, LostItem, FoundItem, AvailabilityBlock, CreditTransaction } from '@/lib/types';
+import { User, Item, BorrowRequest, Transaction, LostItem, FoundItem, AvailabilityBlock, CreditTransaction, LOCATIONS } from '@/lib/types';
 import { createClient } from '@/utils/supabase/client';
 import {
   MOCK_USERS,
@@ -30,6 +30,7 @@ interface AppContextType {
   foundItems: FoundItem[];
   availability: AvailabilityBlock[];
   creditHistory: CreditTransaction[];
+  locations: string[];
   toasts: Toast[];
   addItem: (item: Item) => void;
   addRequest: (request: BorrowRequest) => void;
