@@ -1,48 +1,20 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, BadgeCheck, CalendarCheck, GraduationCap, IdCard, School, Upload, UserRound } from 'lucide-react';
+import { ArrowRight, BadgeCheck, CalendarClock, GraduationCap, IdCard, School, UserRound } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
-import { parseScheduleText } from '@/lib/scheduleUpload';
 
 const grades = [6, 7, 8, 9, 10, 11, 12];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { currentUser, updateCurrentUser, addAvailability, showToast } = useApp();
+  const { currentUser, updateCurrentUser } = useApp();
   const [name, setName] = useState(currentUser.name);
   const [grade, setGrade] = useState(currentUser.grade || 10);
   const [school, setSchool] = useState(currentUser.school || '');
   const [studentId, setStudentId] = useState(currentUser.studentId || '');
   const [pickupLocation, setPickupLocation] = useState(currentUser.pickupLocation || 'Library');
-  const [importedBlocks, setImportedBlocks] = useState(0);
-
-  const handleScheduleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    if (!/\.(txt|csv)$/i.test(file.name)) {
-      showToast('Upload a .txt or .csv schedule for now.', 'error');
-      event.target.value = '';
-      return;
-    }
-
-    const text = await file.text();
-    const blocks = parseScheduleText(text, currentUser.id, pickupLocation);
-
-    if (blocks.length === 0) {
-      showToast('No schedule windows found. Try lines like Monday, 11:20 AM - 11:50 AM, Library, Lunch.', 'error');
-      event.target.value = '';
-      return;
-    }
-
-    blocks.forEach(addAvailability);
-    setImportedBlocks((count) => count + blocks.length);
-    showToast(`Imported ${blocks.length} schedule windows.`, 'success');
-    event.target.value = '';
-  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -108,23 +80,22 @@ export default function OnboardingPage() {
               </select>
             </label>
 
-            <label className="group block cursor-pointer rounded-3xl border border-dashed border-amber-100/25 bg-black/20 p-3 transition hover:border-amber-200/60 hover:bg-amber-100/[0.06]">
-              <input type="file" accept=".txt,.csv,text/plain,text/csv" onChange={handleScheduleUpload} className="sr-only" />
+            <div className="rounded-3xl border border-dashed border-amber-100/25 bg-black/20 p-3">
               <span className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-stone-950 shadow-lg shadow-amber-500/20">
-                  {importedBlocks > 0 ? <CalendarCheck className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
+                  <CalendarClock className="h-5 w-5" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-xs font-extrabold uppercase tracking-wide text-amber-100/75">Optional schedule import</span>
+                  <span className="block text-xs font-extrabold uppercase tracking-wide text-amber-100/75">Set availability later</span>
                   <span className="mt-1 block text-sm font-semibold text-white">
-                    {importedBlocks > 0 ? `${importedBlocks} availability windows imported` : 'Upload a .txt or .csv schedule'}
+                    Drag to mark your free time on the Schedule page
                   </span>
                   <span className="mt-1 block text-xs leading-5 text-stone-400">
-                    Example: Monday, 11:20 AM - 11:50 AM, Library, Lunch
+                    Paint the times you&apos;re free across the week — no forms or file uploads.
                   </span>
                 </span>
               </span>
-            </label>
+            </div>
           </div>
 
           <button type="submit" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-2.5 text-sm font-extrabold text-stone-950 transition hover:bg-amber-100">

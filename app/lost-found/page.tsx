@@ -6,7 +6,7 @@ import { useApp } from '@/app/context/AppContext';
 import { LostItem, FoundItem, ItemCategory } from '@/lib/types';
 import { Search, AlertCircle, CheckCircle, Clock, MapPin, Upload, Zap, X, HelpCircle, Sparkles, Shield } from 'lucide-react';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
-import { classifyImage } from '@/lib/clientImageModel';
+import { classifyImageForForm } from '@/lib/clientImageModel';
 
 const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office', 'Front Entrance', 'Science Room', 'Math Room'];
 
@@ -25,7 +25,7 @@ function matchScore(lost: LostItem, found: FoundItem): number {
 function LostFoundContent() {
   const { lostItems, foundItems, addLostItem, addFoundItem, currentUser, showToast } = useApp();
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'lost' ? 'lost' : searchParams.get('tab') === 'found' ? 'found' : 'lost';
+  const initialTab = searchParams.get('tab') === 'found' ? 'found' : 'lost';
   const [activeTab, setActiveTab] = useState<'lost' | 'found' | 'report-lost' | 'report-found'>(initialTab);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   const [verificationAnswer, setVerificationAnswer] = useState('');
@@ -50,10 +50,13 @@ function LostFoundContent() {
     verificationDetail: '',
   });
 
+  const activeLost = useMemo(() => lostItems.filter((l) => l.status === 'active'), [lostItems]);
+  const unclaimedFound = useMemo(() => foundItems.filter((f) => f.status === 'unclaimed'), [foundItems]);
+
   const possibleMatches = useMemo(() => {
     const results: Array<{ lost: LostItem; found: FoundItem; score: number }> = [];
-    for (const lost of lostItems.filter((l) => l.status === 'active')) {
-      for (const found of foundItems.filter((f) => f.status === 'unclaimed')) {
+    for (const lost of activeLost) {
+      for (const found of unclaimedFound) {
         const score = matchScore(lost, found);
         if (score >= 40) {
           results.push({ lost, found, score });
@@ -61,7 +64,7 @@ function LostFoundContent() {
       }
     }
     return results.sort((a, b) => b.score - a.score);
-  }, [lostItems, foundItems]);
+  }, [activeLost, unclaimedFound]);
 
   const handleReportLost = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,31 +114,18 @@ function LostFoundContent() {
     if (!file) return;
 
     setFoundPhotoStatus('Running trained model...');
-
-    try {
-      const result = await classifyImage(file);
-
-      if (!result.ok || !result.category) {
-        setFoundPhotoStatus(result.error || 'Model could not classify this photo');
-        showToast(result.error || 'Model could not classify this photo.', 'info');
-        return;
-      }
-
+    const { status, toast, patch } = await classifyImageForForm(file);
+    setFoundPhotoStatus(status);
+    if (patch) {
       setFoundForm((prev) => ({
         ...prev,
-        itemName: prev.itemName || result.displayName || result.label || prev.itemName,
-        category: result.category || prev.category,
-        description: prev.description || (result.label ? `Detected by BorrowBoard model: ${result.label}` : prev.description),
+        itemName: prev.itemName || patch.name || prev.itemName,
+        category: patch.category || prev.category,
+        description: prev.description || patch.description || prev.description,
       }));
-      setFoundPhotoStatus(`${result.displayName || result.label} / ${Math.round((result.confidence || 0) * 100)}% confidence`);
-      showToast(`Model classified this as ${result.displayName || result.label}.`, 'success');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not classify this image.';
-      setFoundPhotoStatus(message);
-      showToast(message, 'error');
-    } finally {
-      event.target.value = '';
     }
+    showToast(toast.message, toast.type);
+    event.target.value = '';
   };
 
   const handleClaim = (foundId: string) => {
@@ -172,8 +162,8 @@ function LostFoundContent() {
             <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-300">Report a lost or found item, then BorrowBoard compares category, location, timing, and private verification details.</p>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><p className="text-3xl font-black">{lostItems.filter((l) => l.status === 'active').length}</p><p className="text-xs font-bold uppercase text-stone-400">Lost</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><p className="text-3xl font-black">{foundItems.filter((f) => f.status === 'unclaimed').length}</p><p className="text-xs font-bold uppercase text-stone-400">Found</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><p className="text-3xl font-black">{activeLost.length}</p><p className="text-xs font-bold uppercase text-stone-400">Lost</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><p className="text-3xl font-black">{unclaimedFound.length}</p><p className="text-xs font-bold uppercase text-stone-400">Found</p></div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4"><Shield className="mx-auto mb-2 h-5 w-5 text-amber-200" /><p className="text-xs font-bold uppercase text-stone-400">Verified</p></div>
           </div>
         </div>
@@ -181,8 +171,8 @@ function LostFoundContent() {
 
       {/* Tabs */}
       <div className="flex w-fit flex-wrap items-center gap-2 rounded-2xl border border-stone-950/10 bg-white/75 p-1 shadow-sm">
-        <TabButton id="lost" label={`Lost Items (${lostItems.filter((l) => l.status === 'active').length})`} />
-        <TabButton id="found" label={`Found Items (${foundItems.filter((f) => f.status === 'unclaimed').length})`} />
+        <TabButton id="lost" label={`Lost Items (${activeLost.length})`} />
+        <TabButton id="found" label={`Found Items (${unclaimedFound.length})`} />
         <TabButton id="report-lost" label="Report Lost" />
         <TabButton id="report-found" label="Report Found" />
       </div>
@@ -267,14 +257,14 @@ function LostFoundContent() {
       {/* Lost Items Tab */}
       {activeTab === 'lost' && (
         <div className="space-y-3">
-          {lostItems.filter((l) => l.status === 'active').length === 0 ? (
+          {activeLost.length === 0 ? (
             <div className="bg-white/85 rounded-3xl border border-stone-100 p-10 text-center">
               <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="font-semibold text-slate-600 mb-1">No lost items reported</p>
               <button onClick={() => setActiveTab('report-lost')} className="text-sm text-amber-700 font-bold hover:underline cursor-pointer">Report a lost item</button>
             </div>
           ) : (
-            lostItems.filter((l) => l.status === 'active').map((item) => (
+            activeLost.map((item) => (
               <div key={item.id} className="bg-white/85 rounded-3xl border border-stone-100 p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
@@ -297,14 +287,14 @@ function LostFoundContent() {
       {/* Found Items Tab */}
       {activeTab === 'found' && (
         <div className="space-y-3">
-          {foundItems.filter((f) => f.status === 'unclaimed').length === 0 ? (
+          {unclaimedFound.length === 0 ? (
             <div className="bg-white/85 rounded-3xl border border-stone-100 p-10 text-center">
               <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="font-semibold text-slate-600 mb-1">No found items reported</p>
               <button onClick={() => setActiveTab('report-found')} className="text-sm text-amber-700 font-bold hover:underline cursor-pointer">Report a found item</button>
             </div>
           ) : (
-            foundItems.filter((f) => f.status === 'unclaimed').map((item) => (
+            unclaimedFound.map((item) => (
               <div key={item.id} className="bg-white/85 rounded-3xl border border-stone-100 p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>

@@ -2,11 +2,11 @@
 
 import { ChangeEvent, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import { DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
+import { DAYS, DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
 import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
-import { classifyImage } from '@/lib/clientImageModel';
+import { classifyImageForForm } from '@/lib/clientImageModel';
 
 const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> = [
   { value: 'excellent', label: 'Excellent', desc: 'Like new, no wear' },
@@ -14,7 +14,6 @@ const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> =
   { value: 'fair', label: 'Fair', desc: 'Visible wear, still functional' },
 ];
 
-const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Main Office', 'Front Entrance'];
 
 export default function ListItemPage() {
@@ -62,31 +61,18 @@ export default function ListItemPage() {
     if (!file) return;
 
     setPhotoStatus('Running trained model...');
-
-    try {
-      const result = await classifyImage(file);
-
-      if (!result.ok || !result.category) {
-        setPhotoStatus(result.error || 'Model could not classify this photo');
-        showToast(result.error || 'Model could not classify this photo.', 'info');
-        return;
-      }
-
+    const { status, toast, patch } = await classifyImageForForm(file);
+    setPhotoStatus(status);
+    if (patch) {
       setForm((prev) => ({
         ...prev,
-        name: prev.name || result.displayName || result.label || prev.name,
-        category: result.category || prev.category,
-        description: prev.description || (result.label ? `Detected by BorrowBoard model: ${result.label}` : prev.description),
+        name: prev.name || patch.name || prev.name,
+        category: patch.category || prev.category,
+        description: prev.description || patch.description || prev.description,
       }));
-      setPhotoStatus(`${result.displayName || result.label} / ${Math.round((result.confidence || 0) * 100)}% confidence`);
-      showToast(`Model classified this as ${result.displayName || result.label}.`, 'success');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not classify this image.';
-      setPhotoStatus(message);
-      showToast(message, 'error');
-    } finally {
-      event.target.value = '';
     }
+    showToast(toast.message, toast.type);
+    event.target.value = '';
   };
 
   const handleSubmit = (e: React.FormEvent) => {

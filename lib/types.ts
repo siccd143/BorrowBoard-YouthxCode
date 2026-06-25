@@ -12,8 +12,10 @@ export type ItemCategory =
 
 export type ItemCondition = 'excellent' | 'good' | 'fair';
 export type UrgencyLevel = 'low' | 'normal' | 'urgent';
-export type AvailabilityType = 'lunch' | 'free-period' | 'after-school' | 'before-school' | 'passing-period';
+export type AvailabilityType = 'lunch' | 'free-period' | 'after-school' | 'before-school';
 export type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday';
+
+export const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 export interface User {
   id: string;

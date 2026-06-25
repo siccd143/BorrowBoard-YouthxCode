@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/app/context/AppContext';
 import { findMatches } from '@/lib/matching';
-import { BorrowRequest, DayOfWeek, ItemCategory, MatchResult, UrgencyLevel } from '@/lib/types';
+import { BorrowRequest, DAYS, DayOfWeek, ItemCategory, MatchResult, UrgencyLevel } from '@/lib/types';
 import {
   ArrowLeft,
   CheckCircle,
@@ -19,7 +19,6 @@ import Link from 'next/link';
 import { CATEGORY_OPTIONS, categoryConfig, inferItemCategory } from '@/lib/categories';
 import { getQrCells } from '@/lib/qrPattern';
 
-const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const LOCATIONS = ['Library', 'Cafeteria', 'Room 210', 'STEM Lab', 'Gym', 'Hallway', 'Main Office'];
 const PERIODS = ['1st Period', '2nd Period', '3rd Period', '4th Period', '5th Period', 'Lunch A', 'Lunch B', '6th Period', '7th Period', 'After School'];
 
