@@ -16,6 +16,18 @@ export const CLASS_NAMES = [
   'water_bottle',
 ];
 
+const COCO_FALLBACK_CLASS_NAMES: Record<number, string> = {
+  24: 'backpack',
+  39: 'water_bottle',
+  63: 'laptop',
+  64: 'mouse',
+  65: 'calculator',
+  66: 'keyboard',
+  67: 'calculator',
+  73: 'notebook',
+  76: 'scissors',
+};
+
 export type OnnxDetection = {
   label: string;
   confidence: number;
@@ -86,7 +98,7 @@ async function preprocess(buffer: Buffer): Promise<Float32Array> {
 }
 
 function labelFor(classId: number): string | null {
-  return CLASS_NAMES[classId] ?? null;
+  return CLASS_NAMES[classId] ?? COCO_FALLBACK_CLASS_NAMES[classId] ?? null;
 }
 
 // Greedy non-maximum suppression for raw (non-end2end) outputs.
