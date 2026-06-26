@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/school-supplies-1
 /.pnp
 .pnp.*
 .yarn/*
