@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type UserAvatarProps = {
@@ -10,6 +11,7 @@ type UserAvatarProps = {
 };
 
 export default function UserAvatar({ avatar, name, className, imageClassName }: UserAvatarProps) {
+  const [imageFailed, setImageFailed] = useState(false);
   const isImage = avatar.startsWith("http") || avatar.startsWith("/") || avatar.startsWith("data:image/");
   const initials = name
     .split(" ")
@@ -18,6 +20,10 @@ export default function UserAvatar({ avatar, name, className, imageClassName }: 
     .slice(0, 2)
     .toUpperCase() || "BB";
 
+  useEffect(() => {
+    setImageFailed(false);
+  }, [avatar]);
+
   return (
     <div
       className={cn(
@@ -25,11 +31,12 @@ export default function UserAvatar({ avatar, name, className, imageClassName }: 
         className,
       )}
     >
-      {isImage ? (
+      {isImage && !imageFailed ? (
         <img
           src={avatar}
           alt={`${name} avatar`}
           className={cn("h-full w-full object-cover", imageClassName)}
+          onError={() => setImageFailed(true)}
         />
       ) : (
         <span className="text-xs font-extrabold tracking-wide">{initials}</span>

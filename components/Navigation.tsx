@@ -104,7 +104,7 @@ export default function Navigation() {
         ))}
         <div className="mt-5 border-t border-white/10 pt-4">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-amber-100/35">Judges</p>
-          <NavLink href="/demo" label="Demo Mode" icon={Play} onClick={onNav} />
+          <NavLink href="/demo" label="How It Works" icon={Play} onClick={onNav} />
           <a
             href="https://github.com/siccd143/BorrowBoard-YouthxCode"
             target="_blank"

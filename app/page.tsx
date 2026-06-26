@@ -158,7 +158,7 @@ export default function LandingPage() {
                 className="hero-glass-stable group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-8 py-4 text-sm font-bold text-white transition-colors hover:border-white/20 hover:bg-white/10"
               >
                 <Play className="h-4 w-4 fill-current" />
-                Watch demo
+                See how it works
               </Link>
             </div>
           </div>

@@ -41,7 +41,7 @@ export const MOCK_USERS: User[] = [
     trustScore: 88,
     credits: 75,
     pickupLocation: 'Cafeteria',
-    avatar: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Person%20With%20Blond%20Hair.png',
+    avatar: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Man%20Student.png',
     itemsLent: 4,
     itemsBorrowed: 6,
     onTimeReturns: 9,

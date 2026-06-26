@@ -80,8 +80,7 @@ export async function POST(request: Request) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // Primary: our own YOLO model via ONNX Runtime. Runs in-process on Node —
-  // identical behavior in local dev and on Vercel, no Python required.
+  // Primary: our own YOLO model via ONNX Runtime.
   try {
     const detections = await classifyWithOnnx(buffer);
     const top = detections[0];
@@ -106,7 +105,7 @@ export async function POST(request: Request) {
       detections: detections.slice(0, 5),
     });
   } catch (onnxError) {
-    // Fallback: Roboflow's hosted model, if an API key is configured.
+    // Optional hosted fallback, if an API key is configured.
     try {
       const roboflowDetections = await classifyWithRoboflow(buffer);
 

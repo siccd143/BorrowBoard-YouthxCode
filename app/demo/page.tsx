@@ -200,16 +200,16 @@ export default function DemoPage() {
           <div>
             <div className="inline-flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full text-xs font-semibold mb-3">
               <Play className="w-3 h-3" />
-              Demo Mode — Hackathon Judges
+              Product walkthrough
             </div>
-            <h1 className="text-2xl font-bold mb-1">BorrowBoard Full Flow Demo</h1>
+            <h1 className="text-2xl font-bold mb-1">BorrowBoard full flow</h1>
             <p className="text-blue-100 text-sm">Watch the complete borrowing journey from request to return in 7 steps.</p>
           </div>
         </div>
         <div className="flex gap-3 mt-5">
           {currentStep === -1 ? (
             <button onClick={handleRun} className="flex items-center gap-2 bg-white text-blue-700 font-bold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition-colors cursor-pointer">
-              <Play className="w-4 h-4" /> Run Demo
+              <Play className="w-4 h-4" /> Run walkthrough
             </button>
           ) : (
             <>

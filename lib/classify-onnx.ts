@@ -85,8 +85,8 @@ async function preprocess(buffer: Buffer): Promise<Float32Array> {
   return chw;
 }
 
-function labelFor(classId: number): string {
-  return CLASS_NAMES[classId] ?? `class_${classId}`;
+function labelFor(classId: number): string | null {
+  return CLASS_NAMES[classId] ?? null;
 }
 
 // Greedy non-maximum suppression for raw (non-end2end) outputs.
@@ -136,8 +136,12 @@ function decode(output: Tensor): OnnxDetection[] {
 
       if (confidence < CONF_THRESHOLD) continue;
 
+      const label = labelFor(Math.round(data[offset + 5]));
+
+      if (!label) continue;
+
       detections.push({
-        label: labelFor(Math.round(data[offset + 5])),
+        label,
         confidence,
       });
     }
@@ -186,7 +190,7 @@ function decode(output: Tensor): OnnxDetection[] {
       y1: cy - h / 2,
       x2: cx + w / 2,
       y2: cy + h / 2,
-      det: { label: labelFor(bestId), confidence: bestScore },
+      det: { label: labelFor(bestId) || 'unknown', confidence: bestScore },
     });
   }
 
