@@ -4,7 +4,6 @@ import sys
 from contextlib import redirect_stdout
 from pathlib import Path
 
-
 def main() -> int:
     if len(sys.argv) < 3:
         print(json.dumps({"ok": False, "error": "Usage: classify_image.py <model_path> <image_path>"}))
@@ -50,8 +49,12 @@ def main() -> int:
                 continue
 
             for box in boxes:
-                class_id = int(box.cls[0])
+                raw_class_id = int(box.cls[0])
                 confidence = float(box.conf[0])
+                
+                max_idx = max(0, len(names) - 1)
+                class_id = max(0, min(raw_class_id, max_idx))
+
                 detections.append({
                     "label": str(names.get(class_id, class_id)),
                     "confidence": confidence,
@@ -64,7 +67,6 @@ def main() -> int:
     except Exception as exc:
         print(json.dumps({"ok": False, "error": "Model inference failed.", "details": str(exc)}))
         return 1
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
