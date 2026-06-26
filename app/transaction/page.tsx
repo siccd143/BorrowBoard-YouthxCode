@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import { CheckCircle, Clock, Package, AlertCircle, QrCode, X } from 'lucide-react';
+import Link from 'next/link';
+import { CheckCircle, Clock, Package, AlertCircle, QrCode, X, ArrowRight } from 'lucide-react';
 import { getQrCells } from '@/lib/qrPattern';
 
-function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose, onConfirm }: {
+function QRModal({ transactionId, txnId, itemName, borrower, lender, location, dueTime, onClose, onConfirm }: {
+  transactionId: string;
   txnId: string;
   itemName: string;
   borrower: string;
@@ -22,7 +24,7 @@ function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider opacity-70">QR Checkout Card</span>
+            <span className="text-xs font-bold uppercase tracking-wider opacity-70">Handoff Checkout Card</span>
             <button onClick={onClose} className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 cursor-pointer">
               <X className="w-3.5 h-3.5" />
             </button>
@@ -44,15 +46,23 @@ function QRModal({ txnId, itemName, borrower, lender, location, dueTime, onClose
               </div>
             </div>
           </div>
-          <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Scan code: {txnId}</p>
+          <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Handoff code: {txnId}</p>
         </div>
-        <div className="p-4">
+        <div className="space-y-2 p-4">
+          <Link
+            href={`/handoff/${transactionId}`}
+            onClick={onClose}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+          >
+            Open confirmation page
+            <ArrowRight className="h-4 w-4" />
+          </Link>
           <button
             onClick={onConfirm}
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
-            Scan & Confirm Checkout
+            Quick confirm checkout
           </button>
         </div>
       </div>
@@ -105,6 +115,7 @@ export default function TransactionPage() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-5">
       {qrTxn && qrModal && (
         <QRModal
+          transactionId={qrModal}
           txnId={`TXN-${qrModal.slice(-6).toUpperCase()}`}
           itemName={qrTxn.itemName}
           borrower={qrTxn.borrowerName}
@@ -193,14 +204,21 @@ export default function TransactionPage() {
                 )}
 
                 {txn.status === 'active' && (
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex flex-col gap-2 mt-1 sm:flex-row">
                     <button
                       onClick={() => setQrModal(txn.id)}
                       className="flex-1 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-semibold py-2.5 rounded-xl transition-colors cursor-pointer"
                     >
                       <QrCode className="w-4 h-4" />
-                      {isCheckedOut ? 'View QR' : 'QR Checkout'}
+                      {isCheckedOut ? 'View code' : 'Checkout code'}
                     </button>
+                    <Link
+                      href={`/handoff/${txn.id}`}
+                      className="flex-1 flex items-center justify-center gap-2 bg-slate-950 hover:bg-amber-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      Confirm
+                    </Link>
                     <button
                       onClick={() => {
                         if (isBorrower) {

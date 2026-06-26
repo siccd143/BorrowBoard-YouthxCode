@@ -352,7 +352,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateTransaction = useCallback((txnId: string, updates: Partial<Transaction>) => {
     setTransactions((prev) => prev.map((t) => (t.id === txnId ? { ...t, ...updates } : t)));
-  }, []);
+    if (!isUuid(txnId)) return;
+
+    const dbUpdates = {
+      ...(updates.itemId !== undefined ? { item_id: isUuid(updates.itemId) ? updates.itemId : null } : {}),
+      ...(updates.itemName !== undefined ? { item_name: updates.itemName } : {}),
+      ...(updates.borrowerId !== undefined ? { borrower_id: updates.borrowerId } : {}),
+      ...(updates.lenderId !== undefined ? { lender_id: updates.lenderId } : {}),
+      ...(updates.checkoutTime !== undefined ? { checkout_time: updates.checkoutTime } : {}),
+      ...(updates.dueTime !== undefined ? { due_time: updates.dueTime } : {}),
+      ...(updates.returnTime !== undefined ? { return_time: updates.returnTime } : {}),
+      ...(updates.status !== undefined ? { status: updates.status } : {}),
+      ...(updates.pickupLocation !== undefined ? { pickup_location: updates.pickupLocation } : {}),
+    };
+
+    supabase.from('transactions').update(dbUpdates).eq('id', txnId).then(() => {});
+  }, [supabase]);
 
   const addTransaction = useCallback((txn: Transaction) => {
     setTransactions((prev) => [txn, ...prev]);
