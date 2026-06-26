@@ -3,7 +3,7 @@
 import { ChangeEvent, useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
 import { DAYS, DayOfWeek, Item, ItemCategory, ItemCondition } from '@/lib/types';
-import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles } from 'lucide-react';
+import { AlertTriangle, Camera, CheckCircle, Plus, Shield, Sparkles, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { CATEGORY_OPTIONS, inferItemCategory } from '@/lib/categories';
 import { classifyImageForForm } from '@/lib/clientImageModel';
@@ -17,7 +17,7 @@ const CONDITIONS: Array<{ value: ItemCondition; label: string; desc: string }> =
 export default function ListItemPage() {
   const { addItem, currentUser, locations, showToast } = useApp();
   const [submitted, setSubmitted] = useState(false);
-  const [photoStatus, setPhotoStatus] = useState('Upload item photo');
+  const [photoStatus, setPhotoStatus] = useState('Add item photo');
   const [form, setForm] = useState({
     name: '',
     category: 'school-supply' as ItemCategory,
@@ -153,15 +153,39 @@ export default function ListItemPage() {
       <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-stone-950/10 bg-white/85 p-6 shadow-sm">
         <div>
           <label className="mb-1.5 block text-sm font-semibold text-slate-700">Item Photo</label>
-          <label className="relative block overflow-hidden rounded-3xl border border-stone-950/10 bg-stone-950 p-6 text-center text-white transition-colors cursor-pointer hover:border-amber-300">
-            <input type="file" accept="image/*" onChange={handlePhotoUpload} className="sr-only" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.22),transparent_32%)]" />
-            <div className="relative">
-              <Camera className="mx-auto mb-2 h-7 w-7 text-amber-100" />
-              <p className="text-sm font-bold">{photoStatus}</p>
-              <p className="mt-1 text-xs text-stone-400">The trained YOLO model will suggest the item name and category.</p>
-            </div>
-          </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="relative flex flex-col items-center justify-center rounded-3xl border border-stone-950/10 bg-stone-950 p-6 text-center text-white transition-colors cursor-pointer hover:border-amber-300">
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment" 
+                onChange={handlePhotoUpload} 
+                className="sr-only" 
+              />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(251,191,36,0.15),transparent_32%)]" />
+              <div className="relative">
+                <Camera className="mx-auto mb-2 h-7 w-7 text-amber-100" />
+                <p className="text-sm font-bold">Take Live Photo</p>
+                <p className="mt-1 text-xs text-stone-400">Launches system camera</p>
+              </div>
+            </label>
+            <label className="relative flex flex-col items-center justify-center rounded-3xl border border-dashed border-stone-300 bg-stone-50 p-6 text-center text-slate-700 transition-colors cursor-pointer hover:border-amber-500 hover:bg-stone-100/50">
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handlePhotoUpload} 
+                className="sr-only" 
+              />
+              <div>
+                <Upload className="mx-auto mb-2 h-7 w-7 text-stone-400" />
+                <p className="text-sm font-bold text-slate-900">Upload Photo</p>
+                <p className="mt-1 text-xs text-slate-500">Pick from photo library</p>
+              </div>
+            </label>
+          </div>
+          <div className="mt-2.5 rounded-xl bg-stone-100 px-4 py-2 text-center text-xs font-medium text-stone-600">
+            <span className="text-stone-400">Status:</span> {photoStatus} — <span className="text-stone-500 font-normal">The trained YOLO model will suggest the item name and category.</span>
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
