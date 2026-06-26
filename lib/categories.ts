@@ -47,11 +47,11 @@ const classifierKeywords: Array<{ category: ItemCategory; keywords: string[] }> 
   { category: 'calculator', keywords: ['calculator', 'ti-84', 'ti84', 'graphing'] },
   { category: 'charger', keywords: ['charger', 'usb', 'usb-c', 'lightning', 'adapter', 'cable'] },
   { category: 'science', keywords: ['goggles', 'lab', 'beaker', 'microscope', 'science'] },
-  { category: 'school-supply', keywords: ['ruler', 'pencil', 'pen', 'notebook', 'binder', 'folder', 'marker'] },
+  { category: 'school-supply', keywords: ['ruler', 'pencil', 'pen', 'notebook', 'book', 'binder', 'folder', 'marker', 'eraser', 'sharpener', 'scissors'] },
   { category: 'robotics', keywords: ['tool', 'toolkit', 'wrench', 'screwdriver', 'robot', 'robotics'] },
   { category: 'media', keywords: ['camera', 'tripod', 'microphone', 'mic', 'lens'] },
-  { category: 'sports', keywords: ['ball', 'cleats', 'racket', 'sports', 'jersey'] },
-  { category: 'tech', keywords: ['laptop', 'mouse', 'keyboard', 'headphones', 'earbuds', 'tablet'] },
+  { category: 'sports', keywords: ['ball', 'cleats', 'racket', 'bat', 'glove', 'skateboard', 'frisbee', 'sports', 'jersey'] },
+  { category: 'tech', keywords: ['laptop', 'mouse', 'keyboard', 'headphones', 'earbuds', 'tablet', 'phone', 'monitor'] },
   { category: 'art', keywords: ['paint', 'brush', 'canvas', 'sketch', 'colored pencil'] },
 ];
 

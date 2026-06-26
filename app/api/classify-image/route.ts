@@ -10,11 +10,11 @@ const categoryKeywords: Array<{ category: ItemCategory; keywords: string[] }> = 
   { category: 'calculator', keywords: ['calculator', 'ti84', 'ti-84', 'graphing'] },
   { category: 'charger', keywords: ['charger', 'usb', 'cable', 'adapter'] },
   { category: 'science', keywords: ['goggles', 'beaker', 'microscope', 'science', 'lab'] },
-  { category: 'school-supply', keywords: ['ruler', 'pencil', 'pen', 'notebook', 'binder', 'folder', 'marker', 'eraser', 'sharpener', 'scissors'] },
+  { category: 'school-supply', keywords: ['ruler', 'pencil', 'pen', 'notebook', 'book', 'binder', 'folder', 'marker', 'eraser', 'sharpener', 'scissors'] },
   { category: 'robotics', keywords: ['tool', 'toolkit', 'wrench', 'screwdriver', 'robot'] },
   { category: 'media', keywords: ['camera', 'tripod', 'microphone', 'lens'] },
-  { category: 'sports', keywords: ['ball', 'cleats', 'racket', 'sports'] },
-  { category: 'tech', keywords: ['laptop', 'mouse', 'keyboard', 'headphone', 'tablet'] },
+  { category: 'sports', keywords: ['ball', 'cleats', 'racket', 'bat', 'glove', 'skateboard', 'frisbee', 'sports'] },
+  { category: 'tech', keywords: ['laptop', 'mouse', 'keyboard', 'headphone', 'tablet', 'phone', 'monitor'] },
   { category: 'art', keywords: ['paint', 'brush', 'canvas', 'sketch'] },
 ];
 
