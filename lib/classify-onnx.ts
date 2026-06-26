@@ -4,14 +4,14 @@ import type { InferenceSession, Tensor } from 'onnxruntime-node';
 
 // Class order MUST match the trained model (see models/metadata.yaml `names`).
 export const CLASS_NAMES = [
-  'scissors',
   'backpack',
+  'calculator',
+  'eraser',
+  'notebook',
   'pen',
   'pencil',
-  'calculator',
-  'notebook',
-  'eraser',
   'ruler',
+  'scissors',
   'sharpener',
   'water_bottle',
 ];
