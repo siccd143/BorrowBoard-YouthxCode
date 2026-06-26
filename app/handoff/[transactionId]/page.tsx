@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -15,7 +15,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useApp } from '@/app/context/AppContext';
-import { getQrCells } from '@/lib/qrPattern';
+import { HandoffQrCode } from '@/components/HandoffQrCode';
 
 type Condition = 'excellent' | 'good' | 'fair';
 
@@ -57,20 +57,6 @@ function formatTime(value: string) {
   });
 }
 
-function HandoffPattern({ value }: { value: string }) {
-  const cells = useMemo(() => getQrCells(value), [value]);
-
-  return (
-    <div className="rounded-3xl border border-white/70 bg-white p-3 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
-      <div className="grid h-36 w-36 grid-cols-7 gap-1">
-        {cells.map((filled, index) => (
-          <div key={index} className={`rounded-[5px] ${filled ? 'bg-stone-950' : 'bg-amber-50'}`} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function StepButton({
   active,
   title,
@@ -92,7 +78,7 @@ function StepButton({
           : 'border-stone-200 bg-white/80 hover:border-amber-200 hover:bg-amber-50/50'
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex min-w-0 items-start gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
             active ? 'bg-emerald-600 text-white' : 'bg-stone-950 text-amber-200'
@@ -100,7 +86,7 @@ function StepButton({
         >
           <CheckCircle2 className="h-5 w-5" />
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="font-extrabold text-stone-950">{title}</p>
           <p className="mt-1 text-xs leading-5 text-stone-500">{body}</p>
         </div>
@@ -173,7 +159,7 @@ export default function HandoffConfirmationPage() {
 
   if (!transaction) {
     return (
-      <main className="min-h-screen bg-[#f7f1e8] p-4 sm:p-6 lg:p-8">
+      <main className="min-h-screen overflow-x-hidden bg-[#f7f1e8] p-3 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-3xl rounded-[2rem] border border-stone-200 bg-white p-8 text-center shadow-sm">
           <AlertCircle className="mx-auto h-10 w-10 text-amber-600" />
           <h1 className="mt-4 text-2xl font-black text-stone-950">Handoff not found</h1>
@@ -187,7 +173,7 @@ export default function HandoffConfirmationPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen overflow-x-hidden bg-[#f7f1e8] p-3 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl space-y-5">
         <Link href="/transaction" className="inline-flex items-center gap-2 text-sm font-bold text-stone-600 transition hover:text-amber-700">
           <ArrowLeft className="h-4 w-4" />
@@ -198,9 +184,9 @@ export default function HandoffConfirmationPage() {
           <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="relative p-6 sm:p-8">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(245,158,11,0.24),transparent_34%),radial-gradient(circle_at_90%_10%,rgba(255,255,255,0.12),transparent_26%)]" />
-              <div className="relative">
+              <div className="relative min-w-0">
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-200">Verified handoff</p>
-                <h1 className="mt-3 max-w-2xl text-4xl font-black tracking-normal text-white sm:text-5xl">{transaction.itemName}</h1>
+                <h1 className="mt-3 max-w-2xl break-words text-3xl font-black tracking-normal text-white sm:text-5xl">{transaction.itemName}</h1>
                 <p className="mt-4 max-w-xl text-sm leading-7 text-stone-300">
                   Both students confirm checkout, due time, return condition, and final return. This is the working confirmation flow behind BorrowBoard handoffs.
                 </p>
@@ -209,32 +195,33 @@ export default function HandoffConfirmationPage() {
                   <div className="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <MapPin className="h-5 w-5 text-amber-200" />
                     <p className="mt-3 text-xs font-bold uppercase tracking-wide text-stone-400">Pickup</p>
-                    <p className="mt-1 font-extrabold">{transaction.pickupLocation}</p>
+                    <p className="mt-1 break-words font-extrabold">{transaction.pickupLocation}</p>
                   </div>
                   <div className="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <Clock3 className="h-5 w-5 text-amber-200" />
                     <p className="mt-3 text-xs font-bold uppercase tracking-wide text-stone-400">Due</p>
-                    <p className="mt-1 font-extrabold">{formatTime(transaction.dueTime)}</p>
+                    <p className="mt-1 break-words font-extrabold">{formatTime(transaction.dueTime)}</p>
                   </div>
                   <div className="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <ShieldCheck className="h-5 w-5 text-amber-200" />
                     <p className="mt-3 text-xs font-bold uppercase tracking-wide text-stone-400">Status</p>
-                    <p className="mt-1 font-extrabold">{transaction.status === 'returned' ? 'Returned' : checkoutComplete ? 'Checked out' : 'Awaiting checkout'}</p>
+                    <p className="mt-1 break-words font-extrabold">{transaction.status === 'returned' ? 'Returned' : checkoutComplete ? 'Checked out' : 'Awaiting checkout'}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <aside className="flex flex-col items-center justify-center gap-4 border-t border-white/10 bg-white/[0.07] p-6 text-center lg:border-l lg:border-t-0">
-              <HandoffPattern value={`${transaction.id}:${transaction.itemName}:${transaction.borrowerId}:${transaction.lenderId}`} />
+              <HandoffQrCode path={`/handoff/${transaction.id}`} size={184} className="max-w-full" />
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-200">Handoff code</p>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-200">Scan for checkout or return</p>
                 <p className="mt-1 font-mono text-2xl font-black">{handoffCode}</p>
+                <p className="mt-2 max-w-xs text-xs leading-5 text-stone-300">This QR opens the live confirmation page for pickup, drop-off, condition notes, and credits.</p>
               </div>
               <button
                 type="button"
                 onClick={copyLink}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-stone-950 transition hover:bg-amber-100"
+                className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-stone-950 transition hover:bg-amber-100 sm:w-auto"
               >
                 <Clipboard className="h-4 w-4" />
                 {copied ? 'Copied' : 'Copy link'}
@@ -249,11 +236,11 @@ export default function HandoffConfirmationPage() {
             <div className="mt-4 grid gap-3">
               <div className="rounded-3xl bg-stone-50 p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-stone-400">Borrower</p>
-                <p className="mt-1 text-lg font-black text-stone-950">{transaction.borrowerName}</p>
+                <p className="mt-1 break-words text-lg font-black text-stone-950">{transaction.borrowerName}</p>
               </div>
               <div className="rounded-3xl bg-stone-50 p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-stone-400">Lender</p>
-                <p className="mt-1 text-lg font-black text-stone-950">{transaction.lenderName}</p>
+                <p className="mt-1 break-words text-lg font-black text-stone-950">{transaction.lenderName}</p>
               </div>
             </div>
 

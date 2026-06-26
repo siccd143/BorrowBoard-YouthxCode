@@ -117,22 +117,16 @@ export default function LandingPage() {
         />
         <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,rgba(245,158,11,0.24),transparent_32%),radial-gradient(circle_at_76%_8%,rgba(99,102,241,0.18),transparent_30%),linear-gradient(180deg,rgba(15,13,10,0.15),#0f0d0a_88%)]" />
 
-        <div className="relative z-10 mx-auto grid min-h-[92vh] max-w-7xl gap-12 px-5 pb-14 pt-20 sm:px-8 md:pt-28 lg:grid-cols-12 lg:px-10">
-          <div className="flex flex-col justify-center space-y-8 lg:col-span-7">
+        <div className="relative z-10 mx-auto grid min-h-[auto] max-w-7xl gap-8 px-4 pb-10 pt-16 sm:px-8 sm:pb-14 sm:pt-20 md:pt-28 lg:min-h-[92vh] lg:grid-cols-12 lg:gap-12 lg:px-10">
+          <div className="flex min-w-0 flex-col justify-center space-y-5 sm:space-y-8 lg:col-span-7">
             <div className="hero-stable">
-              <div className="hero-glass-stable inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-stone-300 transition hover:bg-white/10">
+              <div className="hero-glass-stable inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-stone-300 transition hover:bg-white/10 sm:text-xs">
                 Campus trust network
                 <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
               </div>
             </div>
 
-            <h1
-              className="hero-stable max-w-4xl text-5xl font-medium leading-[0.9] tracking-normal sm:text-6xl lg:text-7xl xl:text-8xl"
-              style={{
-                maskImage: "linear-gradient(180deg, black 0%, black 82%, transparent 100%)",
-                WebkitMaskImage: "linear-gradient(180deg, black 0%, black 82%, transparent 100%)",
-              }}
-            >
+            <h1 className="hero-stable max-w-4xl break-words text-4xl font-medium leading-[1.02] tracking-normal sm:text-6xl sm:leading-[0.94] lg:text-7xl xl:text-8xl">
               Borrow what you need.
               <br />
               <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
@@ -140,22 +134,22 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className="hero-stable max-w-xl text-lg leading-8 text-stone-400">
+            <p className="hero-stable max-w-xl text-base leading-7 text-stone-400 sm:text-lg sm:leading-8">
               BorrowBoard turns last-minute school supply problems into verified campus handoffs with matching,
               trust scores, and QR checkout built in.
             </p>
 
-            <div className="hero-stable flex flex-col gap-4 sm:flex-row">
+            <div className="hero-stable flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Link
                 href="/borrow"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold text-stone-950 transition-[transform,background-color,color] hover:scale-[1.02] hover:bg-amber-100 active:scale-[0.98]"
+                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-stone-950 transition-[transform,background-color,color] hover:scale-[1.02] hover:bg-amber-100 active:scale-[0.98] sm:px-8 sm:py-4"
               >
                 Start borrowing
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/demo"
-                className="hero-glass-stable group inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-8 py-4 text-sm font-bold text-white transition-colors hover:border-white/20 hover:bg-white/10"
+                className="hero-glass-stable group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-6 py-3.5 text-sm font-bold text-white transition-colors hover:border-white/20 hover:bg-white/10 sm:px-8 sm:py-4"
               >
                 <Play className="h-4 w-4 fill-current" />
                 See how it works
@@ -163,21 +157,21 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="space-y-6 lg:col-span-5 lg:mt-12">
-            <div className="hero-glass-stable relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-8 shadow-2xl">
+          <div className="min-w-0 space-y-4 sm:space-y-6 lg:col-span-5 lg:mt-12">
+            <div className="hero-glass-stable relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl sm:p-8">
               <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-200/10 blur-3xl" />
               <div className="relative z-10">
-                <div className="mb-8 flex items-center gap-4">
+                <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
                     <Target className="h-6 w-6 text-white" />
                   </div>
-                  <div>
-                    <div className="text-3xl font-bold tracking-tight text-white">4.8m</div>
+                  <div className="min-w-0">
+                    <div className="text-2xl font-bold tracking-tight text-white sm:text-3xl">4.8m</div>
                     <div className="text-sm text-stone-400">average match time</div>
                   </div>
                 </div>
 
-                <div className="mb-8 space-y-3">
+                <div className="mb-6 space-y-3 sm:mb-8">
                   <div className="flex justify-between text-sm">
                     <span className="text-stone-400">Return confidence</span>
                     <span className="font-medium text-white">98%</span>
@@ -189,16 +183,16 @@ export default function LandingPage() {
 
                 <div className="mb-6 h-px w-full bg-white/10" />
 
-                <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="grid grid-cols-3 gap-2 text-center sm:gap-3">
                   {stats.slice(0, 3).map((stat) => (
-                    <div key={stat.label} className="transition-transform hover:-translate-y-1">
-                      <span className="block text-xl font-bold text-white sm:text-2xl">{stat.value}</span>
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-stone-500 sm:text-xs">{stat.label}</span>
+                    <div key={stat.label} className="min-w-0 transition-transform hover:-translate-y-1">
+                      <span className="block text-lg font-bold text-white sm:text-2xl">{stat.value}</span>
+                      <span className="block break-words text-[9px] font-medium uppercase tracking-wide text-stone-500 sm:text-xs sm:tracking-wider">{stat.label}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-8 flex flex-wrap gap-2">
+                <div className="mt-6 flex flex-wrap gap-2 sm:mt-8">
                   <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[10px] font-bold tracking-wide text-stone-300">
                     <span className="relative flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
@@ -214,8 +208,8 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="hero-glass-stable relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] py-8">
-              <h3 className="mb-6 px-8 text-sm font-medium text-stone-400">Built around real school workflows</h3>
+            <div className="hero-glass-stable relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] py-5 sm:py-8">
+              <h3 className="mb-5 px-5 text-sm font-medium text-stone-400 sm:mb-6 sm:px-8">Built around real school workflows</h3>
               <div
                 className="relative flex overflow-hidden"
                 style={{
@@ -225,9 +219,9 @@ export default function LandingPage() {
               >
                 <div className="animate-marquee flex whitespace-nowrap px-4">
                   {[...workflow, ...workflow, ...workflow].map(({ icon: Icon, title }, index) => (
-                    <div key={`${title}-${index}`} className="mx-6 flex items-center gap-2 opacity-55 transition-all hover:scale-105 hover:opacity-100">
-                      <Icon className="h-6 w-6 text-white" />
-                      <span className="text-lg font-bold tracking-normal text-white">{title}</span>
+                    <div key={`${title}-${index}`} className="mx-4 flex items-center gap-2 opacity-55 transition-all hover:scale-105 hover:opacity-100 sm:mx-6">
+                      <Icon className="h-5 w-5 text-white sm:h-6 sm:w-6" />
+                      <span className="text-base font-bold tracking-normal text-white sm:text-lg">{title}</span>
                     </div>
                   ))}
                 </div>

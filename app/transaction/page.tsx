@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
 import Link from 'next/link';
 import { CheckCircle, Clock, Package, AlertCircle, QrCode, X, ArrowRight } from 'lucide-react';
-import { getQrCells } from '@/lib/qrPattern';
+import { HandoffQrCode } from '@/components/HandoffQrCode';
 
 function QRModal({ transactionId, txnId, itemName, borrower, lender, location, dueTime, onClose, onConfirm }: {
   transactionId: string;
@@ -17,11 +17,9 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
   onClose: () => void;
   onConfirm: () => void;
 }) {
-  const cells = getQrCells(`${txnId}:${itemName}:${borrower}:${lender}`);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-3 sm:p-4">
+      <div className="my-4 w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-white">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider opacity-70">Handoff Checkout Card</span>
@@ -37,16 +35,10 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
             <div><p className="opacity-60">Pickup</p><p className="font-semibold">{location}</p></div>
             <div><p className="opacity-60">Due By</p><p className="font-semibold">{new Date(dueTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p></div>
           </div>
-          <div className="flex justify-center mt-4">
-            <div className="w-20 h-20 bg-white rounded-lg p-1.5">
-              <div className="w-full h-full grid grid-cols-7 gap-px">
-                {cells.map((filled, i) => (
-                  <div key={i} className={`rounded-sm ${filled ? 'bg-slate-900' : 'bg-white'}`} />
-                ))}
-              </div>
-            </div>
+          <div className="mt-4 flex justify-center">
+            <HandoffQrCode path={`/handoff/${transactionId}`} size={132} className="p-2" imageClassName="rounded-xl" />
           </div>
-          <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Handoff code: {txnId}</p>
+          <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Scan to confirm checkout or return: {txnId}</p>
         </div>
         <div className="space-y-2 p-4">
           <Link
@@ -112,7 +104,7 @@ export default function TransactionPage() {
   const qrTxn = transactions.find((t) => t.id === qrModal);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5 overflow-x-hidden p-3 sm:p-6 lg:p-8">
       {qrTxn && qrModal && (
         <QRModal
           transactionId={qrModal}
@@ -133,7 +125,7 @@ export default function TransactionPage() {
       </div>
 
       {myTransactions.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
+        <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center sm:p-12">
           <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="font-semibold text-slate-600 mb-1">No transactions yet</p>
           <p className="text-sm text-slate-400">Request or lend an item to get started.</p>
@@ -146,10 +138,10 @@ export default function TransactionPage() {
             const isCheckedOut = confirmedCheckouts.has(txn.id);
 
             return (
-              <div key={txn.id} className={`bg-white rounded-2xl border p-5 shadow-sm ${isOverdue ? 'border-red-200' : 'border-slate-100'}`}>
+              <div key={txn.id} className={`min-w-0 rounded-2xl border bg-white p-4 shadow-sm sm:p-5 ${isOverdue ? 'border-red-200' : 'border-slate-100'}`}>
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  <div>
-                    <h3 className="font-bold text-slate-900">{txn.itemName}</h3>
+                  <div className="min-w-0">
+                    <h3 className="break-words font-bold text-slate-900">{txn.itemName}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {isBorrower ? `Borrowed from ${txn.lenderName}` : `Lent to ${txn.borrowerName}`}
                     </p>
@@ -160,23 +152,23 @@ export default function TransactionPage() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mb-4">
-                  <div className="bg-slate-50 rounded-lg p-2">
+                  <div className="min-w-0 rounded-lg bg-slate-50 p-2">
                     <p className="text-slate-400 mb-0.5">Checkout</p>
                     <p className="font-semibold text-slate-800">
                       {new Date(txn.checkoutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <div className={`rounded-lg p-2 ${isOverdue ? 'bg-red-50' : 'bg-slate-50'}`}>
+                  <div className={`min-w-0 rounded-lg p-2 ${isOverdue ? 'bg-red-50' : 'bg-slate-50'}`}>
                     <p className={`mb-0.5 ${isOverdue ? 'text-red-400' : 'text-slate-400'}`}>Due By</p>
                     <p className={`font-semibold ${isOverdue ? 'text-red-700' : 'text-slate-800'}`}>
                       {new Date(txn.dueTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-2">
+                  <div className="min-w-0 rounded-lg bg-slate-50 p-2">
                     <p className="text-slate-400 mb-0.5">Location</p>
-                    <p className="font-semibold text-slate-800">{txn.pickupLocation}</p>
+                    <p className="break-words font-semibold text-slate-800">{txn.pickupLocation}</p>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-2">
+                  <div className="min-w-0 rounded-lg bg-slate-50 p-2">
                     <p className="text-slate-400 mb-0.5">
                       {txn.status === 'returned' ? 'Credits' : 'Role'}
                     </p>
