@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { useApp } from '@/app/context/AppContext';
-import Link from 'next/link';
-import { CheckCircle, Clock, Package, AlertCircle, QrCode, X, ArrowRight } from 'lucide-react';
+import { CheckCircle, Package, AlertCircle, QrCode, X } from 'lucide-react';
 import { HandoffQrCode } from '@/components/HandoffQrCode';
 
-function QRModal({ transactionId, txnId, itemName, borrower, lender, location, dueTime, onClose, onConfirm }: {
+function QRModal({ transactionId, txnId, itemName, borrower, lender, location, dueTime, onClose }: {
   transactionId: string;
   txnId: string;
   itemName: string;
@@ -15,7 +14,6 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
   location: string;
   dueTime: string;
   onClose: () => void;
-  onConfirm: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-3 sm:p-4">
@@ -36,26 +34,14 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
             <div><p className="opacity-60">Due By</p><p className="font-semibold">{new Date(dueTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p></div>
           </div>
           <div className="mt-4 flex justify-center">
-            <HandoffQrCode path={`/handoff/${transactionId}`} size={132} className="p-2" imageClassName="rounded-xl" />
+            <HandoffQrCode path={`/handoff/${transactionId}?qr=1`} size={132} className="p-2" imageClassName="rounded-xl" />
           </div>
           <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Scan to confirm checkout or return: {txnId}</p>
         </div>
-        <div className="space-y-2 p-4">
-          <Link
-            href={`/handoff/${transactionId}`}
-            onClick={onClose}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 py-3 text-sm font-semibold text-white transition-colors hover:bg-amber-700"
-          >
-            Open confirmation page
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <button
-            onClick={onConfirm}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
-          >
-            <CheckCircle className="w-4 h-4" />
-            Quick confirm checkout
-          </button>
+        <div className="p-4">
+          <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-semibold text-amber-900">
+            Signoff is locked to the QR scan. Use a device camera to open the confirmation page.
+          </p>
         </div>
       </div>
     </div>
@@ -63,28 +49,14 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
 }
 
 export default function TransactionPage() {
-  const { transactions, updateTransaction, addCredits, currentUser, showToast } = useApp();
+  const { transactions, currentUser } = useApp();
   const [qrModal, setQrModal] = useState<string | null>(null);
-  const [confirmedCheckouts, setConfirmedCheckouts] = useState<Set<string>>(new Set());
 
   const myTransactions = transactions.filter(
     (t) => t.borrowerId === currentUser.id || t.lenderId === currentUser.id
   );
 
-  const handleConfirmReturn = (txnId: string, itemName: string) => {
-    updateTransaction(txnId, {
-      status: 'returned',
-      returnTime: new Date().toISOString(),
-      creditsAwarded: 15,
-    });
-    addCredits(15, `Return confirmed: ${itemName}`);
     showToast(`Return confirmed. ${currentUser.name} earned 15 credits! 🎉`, 'success');
-  };
-
-  const handleConfirmCheckout = (txnId: string) => {
-    setConfirmedCheckouts((prev) => new Set([...prev, txnId]));
-    setQrModal(null);
-    showToast(`QR ${txnId.slice(-6).toUpperCase()} scanned. Checkout confirmed.`, 'success');
   };
 
   const statusBadge = (status: string, isOverdue: boolean) => {
