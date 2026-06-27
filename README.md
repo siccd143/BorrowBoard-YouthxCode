@@ -1,6 +1,6 @@
 # BorrowBoard
 
-BorrowBoard is a student-to-student school resource network for borrowing classroom items, lending supplies, and recovering lost belongings. It helps students find things like chargers, calculators, safety goggles, rulers, and tools through trust scores, schedule-aware matching, pickup locations, handoff flows, and a credits system.
+Inspired by the pain of panicking before a test for a calculator, BorrowBoard is a student-to-student school resource network for borrowing classroom items, lending supplies, and recovering lost belongings. It helps students find things like chargers, calculators, safety goggles, rulers, and tools through trust scores, schedule-aware matching, pickup locations, handoff flows, and a credits system.
 
 ## What It Does
 
@@ -73,6 +73,21 @@ lib/classify-onnx.ts  # preprocessing and inference
 ```
 
 The class order in `lib/classify-onnx.ts` must match `models/metadata.yaml`.
+
+## Challenges
+
+As with any collaboration, we ran into our fair share of problems dividing work and managing conflicts between our code and ideas. We used `git`, a lot of messaging, and mutual respect to get through these challenges.
+
+## Learnings
+
+- Batch size greatly contributes to overfitting
+- Simple logic always beats automation
+
+## What's next?
+
+- More **data**
+- More **schools**
+- More **integration**
 
 ## Credits
 
