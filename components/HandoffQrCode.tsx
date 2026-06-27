@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-// @ts-ignore
 import QRCode from 'qrcode';
 
 type HandoffQrCodeProps = {

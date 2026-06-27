@@ -128,6 +128,12 @@ export interface Transaction {
   status: 'active' | 'returned' | 'overdue';
   pickupLocation: string;
   creditsAwarded?: number;
+  borrowerCheckout?: boolean;
+  lenderCheckout?: boolean;
+  borrowerReturn?: boolean;
+  lenderReturn?: boolean;
+  condition?: ItemCondition;
+  notes?: string;
 }
 
 export interface LostItem {

@@ -366,6 +366,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...(updates.pickupLocation !== undefined ? { pickup_location: updates.pickupLocation } : {}),
     };
 
+    if (Object.keys(dbUpdates).length === 0) return;
+
     supabase.from('transactions').update(dbUpdates).eq('id', txnId).then(() => {});
   }, [supabase]);
 

@@ -15,10 +15,8 @@ interface QRModalProps {
   location: string;
   dueTime: string;
   onClose: () => void;
-  onConfirm: () => void; 
 }
-
-function QRModal({ transactionId, txnId, itemName, borrower, lender, location, dueTime, onClose, onConfirm }: QRModalProps) {
+function QRModal({ transactionId, txnId, itemName, borrower, lender, location, dueTime, onClose }: QRModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-3 sm:p-4">
       <div className="my-4 w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
@@ -40,12 +38,11 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
           <div className="mt-4 flex justify-center">
             <HandoffQrCode path={`/handoff/${transactionId}?qr=1`} size={132} className="p-2" imageClassName="rounded-xl" />
           </div>
-          <button onClick={onConfirm} className="mt-2 w-full bg-white/20 hover:bg-white/30 text-xs py-1 rounded">Test Confirm Action</button>
           <p className="mt-3 text-center text-[11px] font-semibold text-white/65">Scan to confirm checkout or return: {txnId}</p>
         </div>
         <div className="p-4">
           <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-semibold text-amber-900">
-            Signoff is locked to the QR scan. Use a device camera to open the confirmation page.
+            Scan the QR or open the confirmation page to finish checkout and return signoff.
           </p>
         </div>
       </div>
@@ -54,25 +51,22 @@ function QRModal({ transactionId, txnId, itemName, borrower, lender, location, d
 }
 
 export default function TransactionPage() {
-  const { transactions, currentUser } = useApp();
+  const { transactions, updateTransaction, addCredits, currentUser, showToast } = useApp();
   const [qrModal, setQrModal] = useState<string | null>(null);
-  
-  const [confirmedCheckouts] = useState<Set<string>>(new Set());
-  const showToast = (msg: string, type: string) => console.log(msg, type);
-  const updateTransaction = (id: string, data: any) => console.log('Updating', id, data);
 
   const myTransactions = transactions.filter(
     (t) => t.borrowerId === currentUser.id || t.lenderId === currentUser.id
   );
 
   const handleConfirmReturn = (txnId: string, itemName: string) => {
-    showToast(`Return confirmed. ${currentUser.name} earned 15 credits! 🎉`, 'success');
+    updateTransaction(txnId, {
+      status: 'returned',
+      returnTime: new Date().toISOString(),
+      creditsAwarded: 15,
+    });
+    addCredits(15, `Return confirmed: ${itemName}`);
+    showToast(`Return confirmed. ${currentUser.name} earned 15 credits.`, 'success');
   };
-
-  const handleConfirmCheckout = (txnId: string) => {
-    showToast(`Checkout confirmed!`, 'success');
-  };
-
   const statusBadge = (status: string, isOverdue: boolean) => {
     if (isOverdue) return 'bg-red-100 text-red-700';
     if (status === 'active') return 'bg-yellow-100 text-yellow-700';
@@ -101,7 +95,6 @@ export default function TransactionPage() {
           location={qrTxn.pickupLocation}
           dueTime={qrTxn.dueTime}
           onClose={() => setQrModal(null)}
-          onConfirm={() => handleConfirmCheckout(qrModal)}
         />
       )}
 
@@ -121,7 +114,7 @@ export default function TransactionPage() {
           {myTransactions.map((txn) => {
             const isOverdue = txn.status === 'active' && new Date(txn.dueTime) < new Date();
             const isBorrower = txn.borrowerId === currentUser.id;
-            const isCheckedOut = confirmedCheckouts.has(txn.id);
+            const isCheckedOut = Boolean(txn.borrowerCheckout && txn.lenderCheckout);
 
             return (
               <div key={txn.id} className={`min-w-0 rounded-2xl border bg-white p-4 shadow-sm sm:p-5 ${isOverdue ? 'border-red-200' : 'border-slate-100'}`}>
