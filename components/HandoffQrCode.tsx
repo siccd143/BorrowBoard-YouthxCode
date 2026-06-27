@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+// @ts-ignore
 import QRCode from 'qrcode';
 
 type HandoffQrCodeProps = {
@@ -29,7 +30,7 @@ export function HandoffQrCode({ path, size = 180, className = '', imageClassName
         dark: '#111111',
         light: '#fff7ed',
       },
-    }).then((dataUrl) => {
+    }).then((dataUrl: string) => {
       if (!cancelled) setQrUrl(dataUrl);
     });
 
